@@ -47,13 +47,48 @@
     a.btn:active{transform:translateY(1px)}
     .name{font-size:13px;font-weight:650}
     .path{font-family:var(--mono);font-size:11.5px;color:rgba(25,35,55,.56);word-break:break-all}
+
+    .sub a.home{
+      color: rgba(25,35,55,.72);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(25,35,55,.18);
+      padding-bottom: 1px;
+    }
+    .sub a.home:hover{
+      color: rgba(25,35,55,.88);
+      border-bottom-color: rgba(25,35,55,.30);
+    }
+    .homeBtn{
+  display:inline-block;
+  margin-top: 10px;
+  padding: 9px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(25,35,55,.16);
+  background: rgba(255,255,255,.70);
+  color: rgba(25,35,55,.82);
+  text-decoration: none;
+  font-size: 13px;
+  transition: box-shadow .12s ease, background .12s ease, border-color .12s ease, transform .08s ease;
+}
+.homeBtn:hover{
+  background: rgba(255,255,255,.92);
+  box-shadow: 0 6px 18px rgba(20,30,60,.06);
+  border-color: rgba(25,35,55,.22);
+}
+.homeBtn:active{ transform: translateY(1px); }
+
   </style>
 </head>
 <body>
   <div class="wrap">
+    <a class="homeBtn" href="https://github.com/w-123-yj" target="_blank" rel="noopener noreferrer">打开 GitHub 主页</a>
+
     <header>
       <h1>网页脚本导航</h1>
-      <div class="sub">GitHub Pages 托管 · 点击直接打开渲染页面</div>
+          <div class="sub">
+            GitHub Pages 托管 · 点击直接打开渲染页面 ·
+            <a class="home" href="https://github.com/w-123-yj" target="_blank" rel="noopener noreferrer">我的主页</a>
+          </div>
     </header>
 
     <section class="card">
@@ -79,6 +114,7 @@
   </div>
 </body>
 </html>
+
 
 
 
