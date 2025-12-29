@@ -431,7 +431,10 @@
       </div>
 
       <div class="row">
-        <input id="dtIn" class="field" placeholder="输入日期时间，例如：2025-12-25 11:23:44" />
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+          <input id="dtDate" class="field" type="date" aria-label="选择日期" />
+          <input id="dtTime" class="field" type="time" step="1" aria-label="选择时间" />
+        </div>
         <select id="outUnit" class="select" aria-label="输出单位">
           <option value="s" selected>秒(s)</option>
           <option value="ms">毫秒(ms)</option>
@@ -442,7 +445,7 @@
     </div>
 
     <div class="hint">
-      日期时间输入支持：<code class="kbd">YYYY-MM-DD HH:mm:ss</code> 或 <code class="kbd">YYYY-MM-DDTHH:mm:ss</code>（均按北京时间解释）。
+      请选择日期与时间（按北京时间解释）。默认：北京时间今天 <code class="kbd">12:00:00</code>。
     </div>
   </div>
 </div>
@@ -660,7 +663,10 @@ if (true] { console.log("oops"); }`;
   const tsInEl = document.getElementById('tsIn');
   const tsUnitEl = document.getElementById('tsUnit');
   const dtOutEl = document.getElementById('dtOut');
-  const dtInEl = document.getElementById('dtIn');
+
+  const dtDateEl = document.getElementById('dtDate');
+  const dtTimeEl = document.getElementById('dtTime');
+
   const outUnitEl = document.getElementById('outUnit');
   const tsOutEl = document.getElementById('tsOut');
 
@@ -677,20 +683,21 @@ if (true] { console.log("oops"); }`;
     return `${get('year')}-${get('month')}-${get('day')} ${get('hour')}:${get('minute')}:${get('second')}`;
   }
 
-  // 按“北京时间”解释输入，再转成 UTC 毫秒
-  function parseBeijingToUtcMs(s){
-    const str = (s || '').trim().replace('T', ' ');
-    const m = /^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})$/.exec(str);
-    if (!m) return null;
+  // 获取“北京时间”的今天日期（YYYY-MM-DD）
+  function getBeijingTodayYMD(){
+    const parts = new Intl.DateTimeFormat('zh-CN', {
+      timeZone: TZ,
+      year: 'numeric', month: '2-digit', day: '2-digit'
+    }).formatToParts(new Date());
 
-    const y = Number(m[1]);
-    const mo = Number(m[2]);
-    const d = Number(m[3]);
-    const hh = Number(m[4]);
-    const mm = Number(m[5]);
-    const ss = Number(m[6]);
+    const get = (type) => parts.find(p => p.type === type)?.value ?? '';
+    return `${get('year')}-${get('month')}-${get('day')}`;
+  }
 
-    return Date.UTC(y, mo - 1, d, hh - 8, mm, ss);
+  // 初始化：默认=北京时间今天 + 12:00:00
+  function initDateTimeDefaults(){
+    dtDateEl.value = getBeijingTodayYMD();
+    dtTimeEl.value = '12:00:00';
   }
 
   function convertTsToDt(){
@@ -702,11 +709,36 @@ if (true] { console.log("oops"); }`;
     dtOutEl.value = formatBeijing(ms);
   }
 
+  // 由 date/time 控件生成 UTC 毫秒（按北京时间解释）
+  function parseBeijingControlsToUtcMs(){
+    const ymd = (dtDateEl.value || '').trim();
+    const hms = (dtTimeEl.value || '').trim();
+    if (!ymd || !hms) return null;
+
+    // time 可能为 HH:mm，这里补齐秒
+    const t = hms.length === 5 ? `${hms}:00` : hms;
+
+    const m1 = /^(\d{4})-(\d{2})-(\d{2})$/.exec(ymd);
+    const m2 = /^(\d{2}):(\d{2}):(\d{2})$/.exec(t);
+    if (!m1 || !m2) return null;
+
+    const y  = Number(m1[1]);
+    const mo = Number(m1[2]);
+    const d  = Number(m1[3]);
+    const hh = Number(m2[1]);
+    const mm = Number(m2[2]);
+    const ss = Number(m2[3]);
+
+    // 北京时间 = UTC+8，因此转 UTC 需减 8 小时
+    return Date.UTC(y, mo - 1, d, hh - 8, mm, ss);
+  }
+
   function convertDtToTs(){
-    const raw = (dtInEl.value || '').trim();
-    if (!raw){ tsOutEl.value = ''; return; }
-    const utcMs = parseBeijingToUtcMs(raw);
-    if (utcMs === null){ tsOutEl.value = '格式应为 YYYY-MM-DD HH:mm:ss'; return; }
+    const utcMs = parseBeijingControlsToUtcMs();
+    if (utcMs === null){
+      tsOutEl.value = '请选择日期与时间';
+      return;
+    }
     tsOutEl.value = (outUnitEl.value === 'ms') ? String(utcMs) : String(Math.floor(utcMs / 1000));
   }
 
@@ -714,7 +746,15 @@ if (true] { console.log("oops"); }`;
   document.getElementById('btnDtToTs').addEventListener('click', convertDtToTs);
 
   tsInEl.addEventListener('keydown', (e) => { if (e.key === 'Enter') convertTsToDt(); });
-  dtInEl.addEventListener('keydown', (e) => { if (e.key === 'Enter') convertDtToTs(); });
+
+  // 日期/时间选择后自动刷新（也可只用按钮）
+  dtDateEl.addEventListener('input', convertDtToTs);
+  dtTimeEl.addEventListener('input', convertDtToTs);
+  outUnitEl.addEventListener('change', convertDtToTs);
+
+  // 初始化默认值，并立即计算一次默认时间戳
+  initDateTimeDefaults();
+  convertDtToTs();
 </script>
 </body>
 </html>
