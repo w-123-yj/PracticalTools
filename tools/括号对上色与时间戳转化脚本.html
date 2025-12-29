@@ -34,9 +34,9 @@
               "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
 
       /* —— 同屏关键：这里控制上方编辑区高度（可微调） —— */
-      --editor-height: 36vh;      /* 上方输入/输出框高度：建议 32~40vh */
-      --editor-min: 240px;        /* 上方最小高度 */
-      --editor-max: 420px;        /* 上方最大高度 */
+      --editor-height: 36vh;
+      --editor-min: 240px;
+      --editor-max: 420px;
     }
 
     * { box-sizing: border-box; }
@@ -52,7 +52,7 @@
     }
 
     header{
-      padding: 18px 20px 8px; /* 缩小头部，保证同屏 */
+      padding: 18px 20px 8px;
       max-width: 1200px;
       margin: 0 auto;
     }
@@ -76,10 +76,10 @@
     .wrap{
       max-width: 1200px;
       margin: 0 auto;
-      padding: 10px 20px 16px; /* 缩小整体 padding */
+      padding: 10px 20px 16px;
       display:flex;
       flex-direction: column;
-      gap: 10px;              /* 缩小间距 */
+      gap: 10px;
     }
 
     .panel{
@@ -185,11 +185,10 @@
       gap: 10px;
     }
 
-    /* —— 同屏关键：固定高度（用 clamp 适配不同屏幕） —— */
     textarea{
       width: 100%;
       height: clamp(var(--editor-min), var(--editor-height), var(--editor-max));
-      resize: none; /* 禁止拖拽拉高，避免把时间戳模块顶出一屏 */
+      resize: none;
       padding: 12px 12px;
       border-radius: 16px;
       border: 1px solid var(--stroke);
@@ -341,6 +340,18 @@
     }
     .readonly{ color: #334155; }
 
+    /* 结果 + 复制按钮：同一格内并排 */
+    .result-wrap{
+      display:grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items:center;
+    }
+    @media (max-width: 980px){
+      .result-wrap{ grid-template-columns: 1fr; }
+      .result-wrap button{ width: 100%; }
+    }
+
     .hint{
       padding: 0 12px 12px;
       font-size: 12px;
@@ -357,7 +368,6 @@
       color: #334155;
     }
 
-    /* 让页面更容易同屏：不要额外 footer 占高度 */
     footer{ display:none; }
   </style>
 </head>
@@ -420,6 +430,7 @@
     </div>
 
     <div class="rows">
+      <!-- 时间戳 -> 日期时间 -->
       <div class="row">
         <input id="tsIn" class="field" placeholder="输入时间戳，例如：1766633024" />
         <select id="tsUnit" class="select" aria-label="时间戳单位">
@@ -427,20 +438,31 @@
           <option value="ms">毫秒(ms)</option>
         </select>
         <button id="btnTsToDt" type="button">转换</button>
-        <input id="dtOut" class="readonly" readonly placeholder="转换结果（北京时间）" />
+
+        <div class="result-wrap">
+          <input id="dtOut" class="readonly" readonly placeholder="转换结果（北京时间）" />
+          <button id="btnCopyDtOut" type="button">复制</button>
+        </div>
       </div>
 
+      <!-- 日期时间 -> 时间戳（日期/时间选择） -->
       <div class="row">
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
           <input id="dtDate" class="field" type="date" aria-label="选择日期" />
           <input id="dtTime" class="field" type="time" step="1" aria-label="选择时间" />
         </div>
+
         <select id="outUnit" class="select" aria-label="输出单位">
           <option value="s" selected>秒(s)</option>
           <option value="ms">毫秒(ms)</option>
         </select>
+
         <button id="btnDtToTs" type="button">转换</button>
-        <input id="tsOut" class="readonly" readonly placeholder="转换结果（时间戳）" />
+
+        <div class="result-wrap">
+          <input id="tsOut" class="readonly" readonly placeholder="转换结果（时间戳）" />
+          <button id="btnCopyTsOut" type="button">复制</button>
+        </div>
       </div>
     </div>
 
@@ -670,6 +692,9 @@ if (true] { console.log("oops"); }`;
   const outUnitEl = document.getElementById('outUnit');
   const tsOutEl = document.getElementById('tsOut');
 
+  const btnCopyDtOutEl = document.getElementById('btnCopyDtOut');
+  const btnCopyTsOutEl = document.getElementById('btnCopyTsOut');
+
   function formatBeijing(ms){
     const d = new Date(ms);
     const parts = new Intl.DateTimeFormat('zh-CN', {
@@ -742,6 +767,20 @@ if (true] { console.log("oops"); }`;
     tsOutEl.value = (outUnitEl.value === 'ms') ? String(utcMs) : String(Math.floor(utcMs / 1000));
   }
 
+  async function copyValueFrom(inputEl, btnEl, okText = '已复制', errText = '复制失败'){
+    const val = (inputEl.value || '').trim();
+    if (!val) return;
+    const old = btnEl.textContent;
+    try{
+      await navigator.clipboard.writeText(val);
+      btnEl.textContent = okText;
+    }catch(e){
+      btnEl.textContent = errText;
+    }finally{
+      setTimeout(() => btnEl.textContent = old, 900);
+    }
+  }
+
   document.getElementById('btnTsToDt').addEventListener('click', convertTsToDt);
   document.getElementById('btnDtToTs').addEventListener('click', convertDtToTs);
 
@@ -751,6 +790,10 @@ if (true] { console.log("oops"); }`;
   dtDateEl.addEventListener('input', convertDtToTs);
   dtTimeEl.addEventListener('input', convertDtToTs);
   outUnitEl.addEventListener('change', convertDtToTs);
+
+  // 复制按钮
+  btnCopyDtOutEl.addEventListener('click', () => copyValueFrom(dtOutEl, btnCopyDtOutEl));
+  btnCopyTsOutEl.addEventListener('click', () => copyValueFrom(tsOutEl, btnCopyTsOutEl));
 
   // 初始化默认值，并立即计算一次默认时间戳
   initDateTimeDefaults();
