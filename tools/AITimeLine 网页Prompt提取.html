@@ -1,0 +1,734 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Prompt Extractor · 柔和工具型 UI</title>
+  <style>
+    :root{
+      --bg1:#f6f8fb;
+      --bg2:#f3f7ff;
+      --card:#ffffffcc;
+      --border:#e6ebf3;
+      --text:#1f2a37;
+      --muted:#607085;
+      --shadow: 0 10px 30px rgba(16, 24, 40, .06);
+      --shadow2: 0 6px 16px rgba(16, 24, 40, .06);
+      --radius:18px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: system-ui, -apple-system, Segoe UI, Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", Helvetica, Arial, sans-serif;
+
+      --accent:#3b82f6;           /* 只做轻提示 */
+      --accent-soft: rgba(59,130,246,.10);
+      --ok: #10b981;
+      --ok-soft: rgba(16,185,129,.12);
+      --warn:#f59e0b;
+      --warn-soft: rgba(245,158,11,.14);
+      --err:#ef4444;
+      --err-soft: rgba(239,68,68,.12);
+    }
+
+    *{ box-sizing: border-box; }
+    body{
+      margin:0;
+      font-family: var(--sans);
+      color: var(--text);
+      background:
+        radial-gradient(900px 600px at 15% 10%, rgba(59,130,246,.10), transparent 60%),
+        radial-gradient(900px 600px at 85% 20%, rgba(236,72,153,.08), transparent 55%),
+        linear-gradient(180deg, var(--bg2), var(--bg1));
+      min-height:100vh;
+    }
+
+    .wrap{
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 28px 18px 34px;
+    }
+
+    header{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+    .title{
+      display:flex;
+      flex-direction:column;
+      gap: 6px;
+    }
+    h1{
+      margin:0;
+      font-size: 20px;
+      letter-spacing: .2px;
+      font-weight: 650;
+    }
+    .subtitle{
+      margin:0;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.55;
+      max-width: 70ch;
+    }
+
+    .chips{
+      display:flex;
+      gap: 8px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    .chip{
+      border:1px solid var(--border);
+      background: #fff8;
+      color: var(--muted);
+      font-size: 12px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap: 14px;
+    }
+    @media (max-width: 980px){
+      .grid{ grid-template-columns: 1fr; }
+      .chips{ justify-content:flex-start; }
+    }
+
+    .card{
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      overflow:hidden;
+    }
+
+    .card-hd{
+      padding: 14px 16px 10px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+      border-bottom: 1px solid rgba(230,235,243,.8);
+    }
+    .card-title{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      min-width: 0;
+    }
+    .badge{
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent-soft);
+      border: 1px solid rgba(59,130,246,.22);
+      flex: 0 0 auto;
+    }
+    .card-title b{
+      font-size: 13px;
+      font-weight: 650;
+    }
+    .card-title span{
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 36ch;
+    }
+
+    .card-bd{
+      padding: 14px 16px 16px;
+    }
+
+    textarea{
+      width:100%;
+      min-height: 380px;
+      resize: vertical;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 12px 12px;
+      font-family: var(--mono);
+      font-size: 12.5px;
+      line-height: 1.55;
+      color: #223044;
+      outline: none;
+      box-shadow: 0 1px 0 rgba(16,24,40,.02) inset;
+    }
+    textarea:focus{
+      border-color: rgba(59,130,246,.35);
+      box-shadow:
+        0 0 0 4px rgba(59,130,246,.10),
+        0 1px 0 rgba(16,24,40,.02) inset;
+    }
+
+    .row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      flex-wrap:wrap;
+      margin-top: 10px;
+    }
+
+    .actions{
+      display:flex;
+      gap: 8px;
+      flex-wrap:wrap;
+    }
+
+    button{
+      appearance:none;
+      border:1px solid var(--border);
+      background: #fff;
+      color: #2a3646;
+      padding: 9px 12px;
+      border-radius: 12px;
+      font-size: 12.5px;
+      line-height: 1;
+      cursor:pointer;
+      box-shadow: var(--shadow2);
+      transition: transform .08s ease, box-shadow .12s ease, background .12s ease;
+      user-select:none;
+    }
+    button:hover{
+      background: #fafcff;
+      box-shadow: 0 10px 20px rgba(16,24,40,.07);
+    }
+    button:active{
+      transform: translateY(1px);
+      box-shadow: 0 6px 14px rgba(16,24,40,.06);
+    }
+    button.primary{
+      border-color: rgba(59,130,246,.35);
+      background: rgba(59,130,246,.08);
+    }
+
+    .toggles{
+      display:flex;
+      gap: 10px;
+      flex-wrap:wrap;
+      color: var(--muted);
+      font-size: 12px;
+      align-items:center;
+    }
+    .toggle{
+      display:flex;
+      gap: 8px;
+      align-items:center;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: #fff8;
+    }
+    .toggle input{ transform: translateY(1px); }
+
+    .status{
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--muted);
+      font-size: 12.5px;
+      line-height: 1.55;
+      display:flex;
+      gap: 10px;
+      align-items:flex-start;
+      white-space: pre-wrap;
+    }
+    .status.ok{
+      border-color: rgba(16,185,129,.25);
+      background: var(--ok-soft);
+      color:#1f3b33;
+    }
+    .status.err{
+      border-color: rgba(239,68,68,.25);
+      background: var(--err-soft);
+      color:#3d2020;
+    }
+
+    .out-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      flex-wrap:wrap;
+    }
+    .metrics{
+      display:flex;
+      gap: 8px;
+      flex-wrap:wrap;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .metric{
+      padding: 6px 10px;
+      border:1px solid var(--border);
+      border-radius: 999px;
+      background:#fff8;
+    }
+
+    .table-wrap{
+      margin-top: 12px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow:hidden;
+      background:#fff;
+    }
+    table{
+      width:100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+      line-height: 1.5;
+    }
+    thead th{
+      text-align:left;
+      font-weight: 650;
+      color:#2a3646;
+      background: #fbfcff;
+      border-bottom: 1px solid var(--border);
+      padding: 10px 10px;
+    }
+    tbody td{
+      border-bottom: 1px solid rgba(230,235,243,.7);
+      padding: 10px 10px;
+      vertical-align: top;
+      color:#2b3748;
+    }
+    tbody tr:last-child td{ border-bottom:none; }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap: 6px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      border: 1px solid var(--border);
+      background:#fff;
+      color: var(--muted);
+      white-space:nowrap;
+    }
+    .pill.pinned{
+      border-color: rgba(59,130,246,.28);
+      background: rgba(59,130,246,.08);
+      color:#2a3c66;
+    }
+    .mono{
+      font-family: var(--mono);
+      font-size: 12px;
+      color:#334155;
+    }
+
+    details{
+      border: 1px solid rgba(230,235,243,.9);
+      border-radius: 14px;
+      background: #fff;
+      overflow:hidden;
+      margin-top: 10px;
+    }
+    summary{
+      list-style:none;
+      cursor:pointer;
+      padding: 10px 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+      color:#2b3748;
+      user-select:none;
+    }
+    summary::-webkit-details-marker{ display:none; }
+    .content{
+      padding: 0 12px 12px;
+      color:#2b3748;
+      white-space: pre-wrap;
+      font-family: var(--sans);
+      font-size: 12.5px;
+      line-height: 1.6;
+    }
+
+    footer{
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+      padding: 0 2px;
+    }
+
+    .hint{
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+      margin-top: 8px;
+    }
+    .k{
+      font-family: var(--mono);
+      font-size: 12px;
+      background: rgba(148,163,184,.16);
+      border:1px solid rgba(148,163,184,.22);
+      border-radius: 8px;
+      padding: 1px 6px;
+      color:#334155;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <div class="title">
+        <h1>Prompt Extractor</h1>
+        <p class="subtitle">
+          粘贴 HTML 后提取 <span class="k">.prompt-item</span> 中的名称与内容。界面尽量“安静、耐看、工具型”。
+        </p>
+      </div>
+      <div class="chips">
+        <div class="chip">解析：DOMParser</div>
+        <div class="chip">输出：表格 / JSON / CSV</div>
+        <div class="chip">本地运行：无需联网</div>
+      </div>
+    </header>
+
+    <div class="grid">
+      <!-- 输入区 -->
+      <section class="card">
+        <div class="card-hd">
+          <div class="card-title">
+            <div class="badge"></div>
+            <div style="min-width:0">
+              <b>输入 HTML</b>
+              <span>把你保存的 HTML 片段/整页粘贴进来</span>
+            </div>
+          </div>
+          <div class="actions">
+            <button id="btnExtract" class="primary">提取</button>
+            <button id="btnClear">清空</button>
+            <button id="btnExample">填充示例</button>
+          </div>
+        </div>
+        <div class="card-bd">
+          <textarea id="input" placeholder="在这里粘贴 HTML..."></textarea>
+
+          <div class="row">
+            <div class="toggles">
+              <label class="toggle">
+                <input type="checkbox" id="optTrim" checked />
+                去掉首尾空白
+              </label>
+              <label class="toggle">
+                <input type="checkbox" id="optNormalizeNewlines" checked />
+                过多空行压缩
+              </label>
+              <label class="toggle">
+                <input type="checkbox" id="optOnlyPinned" />
+                只保留 pinned
+              </label>
+            </div>
+          </div>
+
+          <div id="status" class="status">等待输入…</div>
+
+          <div class="hint">
+            规则：每个 prompt 从 <span class="k">.prompt-item</span> 读取；
+            名称取 <span class="k">.prompt-item-name-text</span>；
+            内容取 <span class="k">.prompt-item-text-content</span>；
+            pinned 由 class 是否含 <span class="k">pinned</span> 判断。
+          </div>
+        </div>
+      </section>
+
+      <!-- 输出区 -->
+      <section class="card">
+        <div class="card-hd">
+          <div class="card-title">
+            <div class="badge"></div>
+            <div style="min-width:0">
+              <b>提取结果</b>
+              <span>按原顺序输出，可复制/导出</span>
+            </div>
+          </div>
+          <div class="actions">
+            <button id="btnCopyJson">复制 JSON</button>
+            <button id="btnDownloadJson">导出 JSON</button>
+            <button id="btnDownloadCsv">导出 CSV</button>
+          </div>
+        </div>
+
+        <div class="card-bd">
+          <div class="out-head">
+            <div class="metrics">
+              <div class="metric">总数：<span id="mTotal">0</span></div>
+              <div class="metric">pinned：<span id="mPinned">0</span></div>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:110px">data-id</th>
+                  <th style="width:90px">状态</th>
+                  <th style="width:190px">名称</th>
+                  <th>内容（展开/预览）</th>
+                </tr>
+              </thead>
+              <tbody id="tbody">
+                <tr>
+                  <td colspan="4" style="color:#607085;padding:14px 10px">暂无结果。粘贴 HTML 后点击“提取”。</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div id="detailsWrap"></div>
+
+          <footer>
+            若“复制 JSON”在 <span class="k">file://</span> 模式下被浏览器限制，你仍可使用导出按钮下载文件，或手动选中输出内容复制。
+          </footer>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    const state = {
+      prompts: []
+    };
+
+    function cleanText(s, { trim = true, normalizeNewlines = true } = {}) {
+      if (typeof s !== "string") return "";
+      let out = s.replace(/\r\n/g, "\n");
+      if (trim) out = out.trim();
+      if (normalizeNewlines) {
+        // 将 3 个及以上空行压缩为最多 2 个
+        out = out.replace(/\n{3,}/g, "\n\n");
+      }
+      return out;
+    }
+
+    function extractPromptsFromHtml(html, options) {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, "text/html");
+
+      const items = Array.from(doc.querySelectorAll(".prompt-item"));
+      const prompts = items.map(item => {
+        const id = item.getAttribute("data-id") || "";
+        const pinned = item.classList.contains("pinned");
+        const nameEl = item.querySelector(".prompt-item-name-text");
+        const contentEl = item.querySelector(".prompt-item-text-content");
+
+        // innerText 更接近“用户看到的文本”，可保留换行；不存在则回退 textContent
+        const rawName = nameEl ? (nameEl.innerText || nameEl.textContent || "") : "";
+        const rawContent = contentEl ? (contentEl.innerText || contentEl.textContent || "") : "";
+
+        return {
+          id,
+          pinned,
+          name: cleanText(rawName, options),
+          content: cleanText(rawContent, options)
+        };
+      });
+
+      return prompts;
+    }
+
+    function render() {
+      const prompts = state.prompts;
+      const total = prompts.length;
+      const pinnedCount = prompts.filter(p => p.pinned).length;
+
+      $("mTotal").textContent = String(total);
+      $("mPinned").textContent = String(pinnedCount);
+
+      const tbody = $("tbody");
+      const detailsWrap = $("detailsWrap");
+      tbody.innerHTML = "";
+      detailsWrap.innerHTML = "";
+
+      if (!total) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td colspan="4" style="color:#607085;padding:14px 10px">暂无结果。请确认粘贴内容包含 <span class="mono">.prompt-item</span> 结构。</td>`;
+        tbody.appendChild(tr);
+        return;
+      }
+
+      prompts.forEach((p, idx) => {
+        const tr = document.createElement("tr");
+        const statusPill = p.pinned
+          ? `<span class="pill pinned">pinned</span>`
+          : `<span class="pill">normal</span>`;
+
+        const preview = (p.content || "").slice(0, 120) + ((p.content || "").length > 120 ? "…" : "");
+        tr.innerHTML = `
+          <td class="mono">${escapeHtml(p.id)}</td>
+          <td>${statusPill}</td>
+          <td>${escapeHtml(p.name || "(未命名)")}</td>
+          <td style="color:#415066">${escapeHtml(preview || "(空)")}</td>
+        `;
+        tbody.appendChild(tr);
+
+        const details = document.createElement("details");
+        details.innerHTML = `
+          <summary>
+            <span>
+              <span class="pill ${p.pinned ? "pinned" : ""}">${p.pinned ? "pinned" : "normal"}</span>
+              <span style="margin-left:8px;font-weight:650">${escapeHtml(p.name || "(未命名)")}</span>
+              <span style="margin-left:8px;color:#607085" class="mono">#${idx + 1} ${p.id ? "· " + escapeHtml(p.id) : ""}</span>
+            </span>
+            <span style="color:#607085">展开</span>
+          </summary>
+          <div class="content">${escapeHtml(p.content || "")}</div>
+        `;
+        detailsWrap.appendChild(details);
+      });
+    }
+
+    function setStatus(kind, text) {
+      const el = $("status");
+      el.className = "status" + (kind ? (" " + kind) : "");
+      el.textContent = text;
+    }
+
+    function escapeHtml(s) {
+      return String(s)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function downloadText(filename, text, mime = "text/plain;charset=utf-8") {
+      const blob = new Blob([text], { type: mime });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(a.href);
+    }
+
+    function toCsv(prompts) {
+      const header = ["id", "pinned", "name", "content"];
+      const rows = prompts.map(p => [
+        p.id,
+        String(p.pinned),
+        p.name,
+        p.content
+      ].map(csvCell).join(","));
+      return header.join(",") + "\n" + rows.join("\n");
+    }
+
+    function csvCell(v) {
+      const s = String(v ?? "");
+      // CSV 规范：包含逗号/引号/换行则整体加引号，内部引号双写
+      if (/[,"\n]/.test(s)) return `"${s.replaceAll('"', '""')}"`;
+      return s;
+    }
+
+    async function copyToClipboard(text) {
+      // file:// 下可能被限制；失败则提示用户手动复制/导出
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+      return false;
+    }
+
+    // 事件
+    $("btnExtract").addEventListener("click", () => {
+      const html = $("input").value || "";
+      const options = {
+        trim: $("optTrim").checked,
+        normalizeNewlines: $("optNormalizeNewlines").checked
+      };
+      const onlyPinned = $("optOnlyPinned").checked;
+
+      if (!html.trim()) {
+        state.prompts = [];
+        render();
+        setStatus("err", "输入为空：请先粘贴 HTML。");
+        return;
+      }
+
+      try {
+        let prompts = extractPromptsFromHtml(html, options);
+        if (onlyPinned) prompts = prompts.filter(p => p.pinned);
+
+        state.prompts = prompts;
+        render();
+
+        if (prompts.length === 0) {
+          setStatus("err", "未找到任何 .prompt-item。请确认粘贴内容包含该结构。");
+        } else {
+          const pinnedCount = prompts.filter(p => p.pinned).length;
+          setStatus("ok", `提取完成：共 ${prompts.length} 条（pinned：${pinnedCount}）。`);
+        }
+      } catch (e) {
+        console.error(e);
+        state.prompts = [];
+        render();
+        setStatus("err", "解析失败：请确认粘贴的是有效 HTML。");
+      }
+    });
+
+    $("btnClear").addEventListener("click", () => {
+      $("input").value = "";
+      state.prompts = [];
+      render();
+      setStatus("", "等待输入…");
+    });
+
+    $("btnCopyJson").addEventListener("click", async () => {
+      const text = JSON.stringify(state.prompts, null, 2);
+      try {
+        const ok = await copyToClipboard(text);
+        setStatus(ok ? "ok" : "", ok ? "已复制 JSON 到剪贴板。" : "当前环境无法自动复制（常见于 file://）。请用“导出 JSON”，或手动复制。");
+      } catch (e) {
+        setStatus("", "复制失败：请改用“导出 JSON”。");
+      }
+    });
+
+    $("btnDownloadJson").addEventListener("click", () => {
+      const text = JSON.stringify(state.prompts, null, 2);
+      downloadText("prompts.json", text, "application/json;charset=utf-8");
+      setStatus("ok", "已导出 prompts.json");
+    });
+
+    $("btnDownloadCsv").addEventListener("click", () => {
+      const text = toCsv(state.prompts);
+      downloadText("prompts.csv", text, "text/csv;charset=utf-8");
+      setStatus("ok", "已导出 prompts.csv");
+    });
+
+    $("btnExample").addEventListener("click", () => {
+      $("input").value =
+`<div class="prompt-item pinned" data-id="1767521431196">
+  <div class="prompt-item-name-text">上传文章文件</div>
+  <div class="prompt-item-text-content">我要读这些文章…你只需要回答我已全部理解即可。</div>
+</div>
+<div class="prompt-item" data-id="1767101333145">
+  <div class="prompt-item-name-text">分批输入内容</div>
+  <div class="prompt-item-text-content">现在需要先给你提供一些资料…如果你听明白了，就告诉我开始发送。</div>
+</div>`;
+      setStatus("", "已填充示例：点击“提取”。");
+    });
+
+    // 初始渲染
+    render();
+  </script>
+</body>
+</html>
