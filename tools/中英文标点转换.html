@@ -414,6 +414,21 @@
       return out;
     }
 
+
+    function removeCjkInnerSpaces(text){
+    let s = text, prev;
+    // 只处理“水平空白”（不含换行），避免把换行吃掉
+    const HWS = /([\u4E00-\u9FFF])([^\S\r\n]+)([\u4E00-\u9FFF])/g;
+  
+    // 迭代是为了处理：触  发  角 这种多段情况
+    do{
+      prev = s;
+      s = s.replace(HWS, "$1$3");
+    } while (s !== prev);
+  
+    return s;
+  }
+    
     function convert(text, direction){
       let s = replacePairs(text, direction);
       s = replaceSingles(s, direction);
@@ -426,9 +441,7 @@
         s = s.replace(/([，。；：？！】》）])\s+/g, "$1"); // 中文标点后多余空格
       }
       
-      // 连续空格压缩：2 个以上 -> 1 个（保留换行/制表符不动）
-      s = s.replace(/ {2,}/g, " ");
-
+      s = removeCjkInnerSpaces(s);
       return s;
     }
 
@@ -586,4 +599,5 @@
   </script>
 </body>
 </html>
+
 
