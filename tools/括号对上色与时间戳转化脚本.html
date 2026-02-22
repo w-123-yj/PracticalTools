@@ -467,7 +467,7 @@
     </div>
 
     <div class="hint">
-      请选择日期与时间（按北京时间解释）。默认：北京时间今天 <code class="kbd">12:00:00</code>。
+      请选择日期与时间（按北京时间解释）。默认：北京时间今天 <code class="kbd">06:00:00</code>。
     </div>
   </div>
 </div>
@@ -719,10 +719,10 @@ if (true] { console.log("oops"); }`;
     return `${get('year')}-${get('month')}-${get('day')}`;
   }
 
-  // 初始化：默认=北京时间今天 + 12:00:00
+  // 初始化：默认=北京时间今天 + 06:00:00
   function initDateTimeDefaults(){
     dtDateEl.value = getBeijingTodayYMD();
-    dtTimeEl.value = '12:00:00';
+    dtTimeEl.value = '06:00:00';
   }
 
   function convertTsToDt(){
@@ -801,3 +801,4 @@ if (true] { console.log("oops"); }`;
 </script>
 </body>
 </html>
+
