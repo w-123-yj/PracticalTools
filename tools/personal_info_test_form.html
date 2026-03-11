@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>个人信息收集表单测试页</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #dbe3ef;
+      --accent: #2563eb;
+      --accent-soft: #eff6ff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: linear-gradient(180deg, #f8fbff 0%, var(--bg) 100%);
+      color: var(--text);
+    }
+
+    .container {
+      max-width: 980px;
+      margin: 32px auto;
+      padding: 0 16px 40px;
+    }
+
+    .header {
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+      line-height: 1.2;
+    }
+
+    .header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    form {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+    }
+
+    fieldset {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 18px 16px 8px;
+      margin: 0 0 18px;
+      background: #fff;
+    }
+
+    legend {
+      padding: 0 8px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .hint {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: -2px;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 14px;
+      outline: none;
+      background: #fff;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-soft);
+    }
+
+    textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+
+    .radio-group,
+    .checkbox-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      padding-top: 6px;
+    }
+
+    .radio-item,
+    .checkbox-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .radio-item input,
+    .checkbox-item input {
+      width: auto;
+      margin: 0;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 10px;
+      padding: 12px 18px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .secondary {
+      background: #eef2f7;
+      color: var(--text);
+    }
+
+    .note {
+      margin-top: 14px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    @media (max-width: 768px) {
+      .grid,
+      .grid-3 {
+        grid-template-columns: 1fr;
+      }
+
+      form {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>个人信息收集表单测试页</h1>
+      <p>仅用于浏览器表单自动填写与机器人识别测试，不包含保存、提交、更新等后端处理逻辑。</p>
+    </div>
+
+    <form id="profileForm" autocomplete="on">
+      <fieldset>
+        <legend>基础身份信息</legend>
+        <div class="grid">
+          <div class="field">
+            <label for="fullName">姓名</label>
+            <input id="fullName" name="name" type="text" autocomplete="name" placeholder="例如：张三" />
+          </div>
+
+          <div class="field">
+            <label for="nickName">昵称</label>
+            <input id="nickName" name="nickname" type="text" autocomplete="nickname" placeholder="例如：小张" />
+          </div>
+
+          <div class="field">
+            <label for="givenName">名</label>
+            <input id="givenName" name="given-name" type="text" autocomplete="given-name" placeholder="例如：三" />
+          </div>
+
+          <div class="field">
+            <label for="familyName">姓</label>
+            <input id="familyName" name="family-name" type="text" autocomplete="family-name" placeholder="例如：张" />
+          </div>
+
+          <div class="field">
+            <label for="englishName">英文名</label>
+            <input id="englishName" name="english-name" type="text" placeholder="例如：Tom Zhang" />
+          </div>
+
+          <div class="field">
+            <label for="birthday">出生日期</label>
+            <input id="birthday" name="bday" type="date" autocomplete="bday" />
+          </div>
+
+          <div class="field">
+            <label for="idNumber">身份证号</label>
+            <input id="idNumber" name="national-id" type="text" inputmode="numeric" placeholder="例如：110101199001011234" />
+          </div>
+
+          <div class="field">
+            <label>性别</label>
+            <div class="radio-group" role="radiogroup" aria-label="性别">
+              <label class="radio-item"><input type="radio" name="gender" value="male" /> 男</label>
+              <label class="radio-item"><input type="radio" name="gender" value="female" /> 女</label>
+              <label class="radio-item"><input type="radio" name="gender" value="other" /> 其他</label>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>联系方式</legend>
+        <div class="grid">
+          <div class="field">
+            <label for="mobile">手机号</label>
+            <input id="mobile" name="tel" type="tel" autocomplete="tel" placeholder="例如：13800138000" />
+          </div>
+
+          <div class="field">
+            <label for="email">邮箱</label>
+            <input id="email" name="email" type="email" autocomplete="email" placeholder="例如：name@example.com" />
+          </div>
+
+          <div class="field">
+            <label for="website">个人网站</label>
+            <input id="website" name="url" type="url" autocomplete="url" placeholder="例如：https://example.com" />
+          </div>
+
+          <div class="field">
+            <label for="wechat">微信号</label>
+            <input id="wechat" name="impp" type="text" placeholder="例如：zhangsan_01" />
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>住址信息</legend>
+        <div class="grid">
+          <div class="field full">
+            <label for="street">街道地址</label>
+            <input id="street" name="street-address" type="text" autocomplete="street-address" placeholder="例如：浦东新区世纪大道 100 号" />
+          </div>
+
+          <div class="field">
+            <label for="country">国家/地区</label>
+            <input id="country" name="country-name" type="text" autocomplete="country-name" placeholder="例如：中国" />
+          </div>
+
+          <div class="field">
+            <label for="province">省/州</label>
+            <input id="province" name="address-level1" type="text" autocomplete="address-level1" placeholder="例如：上海市" />
+          </div>
+
+          <div class="field">
+            <label for="city">城市</label>
+            <input id="city" name="address-level2" type="text" autocomplete="address-level2" placeholder="例如：上海" />
+          </div>
+
+          <div class="field">
+            <label for="district">区/县</label>
+            <input id="district" name="address-level3" type="text" placeholder="例如：浦东新区" />
+          </div>
+
+          <div class="field">
+            <label for="postalCode">邮编</label>
+            <input id="postalCode" name="postal-code" type="text" autocomplete="postal-code" placeholder="例如：200120" />
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>工作与教育信息</legend>
+        <div class="grid">
+          <div class="field">
+            <label for="company">公司</label>
+            <input id="company" name="organization" type="text" autocomplete="organization" placeholder="例如：示例科技有限公司" />
+          </div>
+
+          <div class="field">
+            <label for="jobTitle">职位</label>
+            <input id="jobTitle" name="organization-title" type="text" autocomplete="organization-title" placeholder="例如：产品经理" />
+          </div>
+
+          <div class="field">
+            <label for="department">部门</label>
+            <input id="department" name="department" type="text" placeholder="例如：研发部" />
+          </div>
+
+          <div class="field">
+            <label for="school">学校</label>
+            <input id="school" name="school" type="text" placeholder="例如：复旦大学" />
+          </div>
+
+          <div class="field">
+            <label for="major">专业</label>
+            <input id="major" name="major" type="text" placeholder="例如：计算机科学与技术" />
+          </div>
+
+          <div class="field">
+            <label for="degree">学历</label>
+            <select id="degree" name="degree">
+              <option value="">请选择</option>
+              <option>高中</option>
+              <option>大专</option>
+              <option>本科</option>
+              <option>硕士</option>
+              <option>博士</option>
+              <option>其他</option>
+            </select>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>紧急联系人</legend>
+        <div class="grid">
+          <div class="field">
+            <label for="emergencyName">联系人姓名</label>
+            <input id="emergencyName" name="emergency-contact-name" type="text" placeholder="例如：李四" />
+          </div>
+
+          <div class="field">
+            <label for="emergencyPhone">联系人电话</label>
+            <input id="emergencyPhone" name="emergency-contact-tel" type="tel" placeholder="例如：13900139000" />
+          </div>
+
+          <div class="field">
+            <label for="emergencyRelation">关系</label>
+            <input id="emergencyRelation" name="emergency-contact-relation" type="text" placeholder="例如：配偶 / 父亲 / 朋友" />
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>偏好与补充</legend>
+        <div class="grid">
+          <div class="field">
+            <label for="shirtSize">衣服尺码</label>
+            <select id="shirtSize" name="shirt-size">
+              <option value="">请选择</option>
+              <option>XS</option>
+              <option>S</option>
+              <option>M</option>
+              <option>L</option>
+              <option>XL</option>
+              <option>XXL</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="bloodType">血型</label>
+            <select id="bloodType" name="blood-type">
+              <option value="">请选择</option>
+              <option>A</option>
+              <option>B</option>
+              <option>AB</option>
+              <option>O</option>
+              <option>未知</option>
+            </select>
+          </div>
+
+          <div class="field full">
+            <label>兴趣爱好</label>
+            <div class="checkbox-group">
+              <label class="checkbox-item"><input type="checkbox" name="hobby" value="sports" /> 运动</label>
+              <label class="checkbox-item"><input type="checkbox" name="hobby" value="music" /> 音乐</label>
+              <label class="checkbox-item"><input type="checkbox" name="hobby" value="reading" /> 阅读</label>
+              <label class="checkbox-item"><input type="checkbox" name="hobby" value="travel" /> 旅行</label>
+              <label class="checkbox-item"><input type="checkbox" name="hobby" value="game" /> 游戏</label>
+            </div>
+          </div>
+
+          <div class="field full">
+            <label for="bio">备注 / 自我介绍</label>
+            <textarea id="bio" name="note" placeholder="可填写补充说明"></textarea>
+            <div class="hint">这个区域用于测试大文本输入识别能力。</div>
+          </div>
+        </div>
+      </fieldset>
+
+      <div class="actions">
+        <button type="submit" class="primary">提交测试</button>
+        <button type="reset" class="secondary">重置表单</button>
+      </div>
+
+      <div class="note">说明：点击“提交测试”不会真正提交到服务器，仅用于界面与自动填写测试。</div>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById('profileForm').addEventListener('submit', function (event) {
+      event.preventDefault();
+      alert('这是测试页面：当前不执行保存、上传或提交逻辑。');
+    });
+  </script>
+</body>
+</html>
