@@ -1,1 +1,519 @@
 
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>一天早晨的英语图片</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --primary: #2563eb;
+      --primary-soft: #dbeafe;
+      --shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .page {
+      width: min(1200px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 64px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #ffffff 0%, #eef4ff 100%);
+      border: 1px solid #e6edf9;
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(28px, 4vw, 40px);
+      line-height: 1.2;
+    }
+
+    .sub {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 14px;
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+      position: sticky;
+      top: 12px;
+      z-index: 10;
+    }
+
+    .modes, .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .btn {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text);
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: .2s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+    }
+
+    .btn.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    .btn.soft {
+      background: var(--primary-soft);
+      border-color: #bfdbfe;
+      color: #1d4ed8;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+
+    .grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .learn-grid {
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    }
+
+    .single-grid {
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+
+    .compare-grid {
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .card-desc {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .image-wrap {
+      position: relative;
+      overflow: hidden;
+      border-radius: 14px;
+      background: #f3f4f6;
+      border: 1px solid #eef0f3;
+    }
+
+    .image-wrap img {
+      display: block;
+      width: 100%;
+      height: auto;
+      cursor: zoom-in;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .pair {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .pair .label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #374151;
+      margin-bottom: 6px;
+    }
+
+    .empty {
+      text-align: center;
+      color: var(--muted);
+      padding: 56px 20px;
+      background: white;
+      border: 1px dashed #cbd5e1;
+      border-radius: 18px;
+    }
+
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.82);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      z-index: 99;
+    }
+
+    .lightbox.open {
+      display: flex;
+    }
+
+    .lightbox-inner {
+      width: min(1100px, 100%);
+      max-height: 100%;
+      overflow: auto;
+    }
+
+    .lightbox-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #fff;
+      margin-bottom: 12px;
+      gap: 12px;
+    }
+
+    .lightbox-title {
+      font-size: 15px;
+      font-weight: 600;
+      opacity: 0.95;
+    }
+
+    .close-btn {
+      background: rgba(255,255,255,0.14);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.22);
+    }
+
+    .lightbox img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 18px;
+      background: #fff;
+    }
+
+    @media (min-width: 900px) {
+      .pair {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page {
+        width: min(100% - 20px, 1200px);
+        padding-top: 20px;
+      }
+      .hero {
+        padding: 22px;
+      }
+      .toolbar {
+        top: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <h1>一天早晨的英语图片</h1>
+      <p class="sub">推荐先用“学习模式”做回忆，再点“显示答案”核对；需要时再切到只看 1- 或只看 2-。</p>
+    </section>
+
+    <section class="toolbar">
+      <div class="modes" id="modeButtons"></div>
+      <div class="actions" id="extraActions"></div>
+    </section>
+
+    <p class="hint" id="viewHint"></p>
+    <main id="app"></main>
+  </div>
+
+  <div class="lightbox" id="lightbox">
+    <div class="lightbox-inner">
+      <div class="lightbox-top">
+        <div class="lightbox-title" id="lightboxTitle"></div>
+        <button class="btn close-btn" id="closeLightbox">关闭</button>
+      </div>
+      <img id="lightboxImage" src="" alt="预览大图" />
+    </div>
+  </div>
+
+  <script>
+    const basePath = './image/一天早晨的英语图片/';
+
+    const groups = [1, 2, 3, 4].map((n) => ({
+      id: n,
+      title: `第 ${n} 组`,
+      withText: `一天早晨的英语图片1-${n}.png`,
+      withoutText: `一天早晨的英语图片2-${n}.png`
+    }));
+
+    const modes = [
+      { key: 'learn', label: '学习模式', hint: '默认显示 2- 纯图片，适合先回忆，再逐张显示短语答案。' },
+      { key: 'withText', label: '只看 1-', hint: '只显示带短语版本，适合集中复习短语。' },
+      { key: 'withoutText', label: '只看 2-', hint: '只显示无短语版本，适合自测。' },
+      { key: 'compare', label: '对照查看', hint: '同组 1- / 2- 并排展示，比“全部显示”更容易对照记忆。' }
+    ];
+
+    let currentMode = 'learn';
+    const revealState = Object.fromEntries(groups.map(item => [item.id, false]));
+
+    const app = document.getElementById('app');
+    const modeButtons = document.getElementById('modeButtons');
+    const extraActions = document.getElementById('extraActions');
+    const viewHint = document.getElementById('viewHint');
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImage = document.getElementById('lightboxImage');
+    const lightboxTitle = document.getElementById('lightboxTitle');
+    const closeLightbox = document.getElementById('closeLightbox');
+
+    function fileSrc(name) {
+      return encodeURI(basePath + name);
+    }
+
+    function imageBlock({ src, alt, label, meta }) {
+      return `
+        <div>
+          ${label ? `<div class="label">${label}</div>` : ''}
+          <div class="image-wrap">
+            <img src="${fileSrc(src)}" alt="${alt}" loading="lazy" data-preview="${fileSrc(src)}" data-title="${alt}" />
+          </div>
+          ${meta ? `<div class="meta"><span>${meta}</span></div>` : ''}
+        </div>
+      `;
+    }
+
+    function renderModeButtons() {
+      modeButtons.innerHTML = modes.map(mode => `
+        <button class="btn ${mode.key === currentMode ? 'active' : ''}" data-mode="${mode.key}">
+          ${mode.label}
+        </button>
+      `).join('');
+    }
+
+    function renderExtraActions() {
+      if (currentMode !== 'learn') {
+        extraActions.innerHTML = '';
+        return;
+      }
+
+      const allShown = groups.every(item => revealState[item.id]);
+      extraActions.innerHTML = `
+        <button class="btn soft" id="toggleAllAnswers">
+          ${allShown ? '隐藏全部答案' : '显示全部答案'}
+        </button>
+      `;
+
+      document.getElementById('toggleAllAnswers').onclick = () => {
+        const nextValue = !groups.every(item => revealState[item.id]);
+        groups.forEach(item => revealState[item.id] = nextValue);
+        render();
+      };
+    }
+
+    function renderLearnMode() {
+      return `
+        <section class="grid learn-grid">
+          ${groups.map(item => {
+            const showingAnswer = revealState[item.id];
+            const currentFile = showingAnswer ? item.withText : item.withoutText;
+            return `
+              <article class="card">
+                <div class="card-header">
+                  <h2 class="card-title">${item.title}</h2>
+                  <button class="btn" data-toggle-answer="${item.id}">
+                    ${showingAnswer ? '隐藏答案' : '显示答案'}
+                  </button>
+                </div>
+                <p class="card-desc">${showingAnswer ? '当前为 1- 带短语版本' : '当前为 2- 无短语版本'}</p>
+                ${imageBlock({
+                  src: currentFile,
+                  alt: `${item.title} - ${showingAnswer ? '带短语' : '无短语'}`,
+                  meta: currentFile
+                })}
+              </article>
+            `;
+          }).join('')}
+        </section>
+      `;
+    }
+
+    function renderSingleMode(type) {
+      const key = type === 'withText' ? 'withText' : 'withoutText';
+      const label = type === 'withText' ? '1- 带短语版本' : '2- 无短语版本';
+
+      return `
+        <section class="grid single-grid">
+          ${groups.map(item => `
+            <article class="card">
+              <div class="card-header">
+                <h2 class="card-title">${item.title}</h2>
+              </div>
+              <p class="card-desc">${label}</p>
+              ${imageBlock({
+                src: item[key],
+                alt: `${item.title} - ${label}`,
+                meta: item[key]
+              })}
+            </article>
+          `).join('')}
+        </section>
+      `;
+    }
+
+    function renderCompareMode() {
+      return `
+        <section class="grid compare-grid">
+          ${groups.map(item => `
+            <article class="card">
+              <div class="card-header">
+                <h2 class="card-title">${item.title}</h2>
+              </div>
+              <p class="card-desc">同组对照，左边 1-，右边 2-。</p>
+              <div class="pair">
+                ${imageBlock({
+                  src: item.withText,
+                  alt: `${item.title} - 带短语版本`,
+                  label: '1- 带短语',
+                  meta: item.withText
+                })}
+                ${imageBlock({
+                  src: item.withoutText,
+                  alt: `${item.title} - 无短语版本`,
+                  label: '2- 无短语',
+                  meta: item.withoutText
+                })}
+              </div>
+            </article>
+          `).join('')}
+        </section>
+      `;
+    }
+
+    function bindEvents() {
+      document.querySelectorAll('[data-mode]').forEach(btn => {
+        btn.onclick = () => {
+          currentMode = btn.dataset.mode;
+          render();
+        };
+      });
+
+      document.querySelectorAll('[data-toggle-answer]').forEach(btn => {
+        btn.onclick = () => {
+          const id = Number(btn.dataset.toggleAnswer);
+          revealState[id] = !revealState[id];
+          render();
+        };
+      });
+
+      document.querySelectorAll('[data-preview]').forEach(img => {
+        img.onclick = () => {
+          lightboxImage.src = img.dataset.preview;
+          lightboxTitle.textContent = img.dataset.title || '图片预览';
+          lightbox.classList.add('open');
+        };
+      });
+    }
+
+    function render() {
+      renderModeButtons();
+      renderExtraActions();
+
+      const modeInfo = modes.find(item => item.key === currentMode);
+      viewHint.textContent = modeInfo ? modeInfo.hint : '';
+
+      if (currentMode === 'learn') {
+        app.innerHTML = renderLearnMode();
+      } else if (currentMode === 'withText') {
+        app.innerHTML = renderSingleMode('withText');
+      } else if (currentMode === 'withoutText') {
+        app.innerHTML = renderSingleMode('withoutText');
+      } else if (currentMode === 'compare') {
+        app.innerHTML = renderCompareMode();
+      } else {
+        app.innerHTML = '<div class="empty">没有可显示的内容。</div>';
+      }
+
+      bindEvents();
+    }
+
+    closeLightbox.onclick = () => lightbox.classList.remove('open');
+    lightbox.onclick = (event) => {
+      if (event.target === lightbox) {
+        lightbox.classList.remove('open');
+      }
+    };
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        lightbox.classList.remove('open');
+      }
+    });
+
+    render();
+  </script>
+</body>
+</html>
