@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>密码生成器</title>
+  <style>
+    :root {
+      --bg-1: #f5f8fb;
+      --bg-2: #eef4f1;
+      --card: rgba(255, 255, 255, 0.78);
+      --card-strong: rgba(255, 255, 255, 0.92);
+      --border: rgba(115, 138, 156, 0.15);
+      --text: #25313c;
+      --text-soft: #697987;
+      --text-faint: #8d9baa;
+      --accent: #86b8a1;
+      --accent-deep: #679882;
+      --accent-soft: rgba(134, 184, 161, 0.16);
+      --shadow: 0 10px 30px rgba(31, 45, 61, 0.05);
+      --radius-xl: 22px;
+      --radius-lg: 16px;
+      --radius-md: 13px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB",
+        "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: var(--sans);
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(201, 224, 214, 0.52), transparent 32%),
+        radial-gradient(circle at top right, rgba(205, 222, 239, 0.42), transparent 28%),
+        linear-gradient(135deg, var(--bg-1), var(--bg-2));
+    }
+
+    body {
+      padding: 14px 18px;
+      overflow: hidden;
+    }
+
+    .app {
+      max-width: 1420px;
+      height: calc(100vh - 28px);
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2px 0 8px;
+      flex: 0 0 auto;
+    }
+
+    .title {
+      margin: 0;
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-align: center;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 470px minmax(0, 1fr);
+      gap: 18px;
+      flex: 1 1 auto;
+      min-height: 0;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      min-height: 0;
+    }
+
+    .panel {
+      padding: 18px 20px;
+      height: 100%;
+    }
+
+    .settings-panel,
+    .result-panel {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .settings-main {
+      flex: 1 1 auto;
+      min-height: 0;
+    }
+
+    .panel h2 {
+      margin: 0 0 12px;
+      font-size: 17px;
+      font-weight: 650;
+    }
+
+    .section {
+      padding: 12px 0;
+      border-top: 1px solid rgba(115, 138, 156, 0.11);
+    }
+
+    .section:first-of-type {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .label-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .label {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .hint {
+      font-size: 12px;
+      color: var(--text-faint);
+      white-space: nowrap;
+    }
+
+    .toggle-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .toggle {
+      position: relative;
+    }
+
+    .toggle input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .toggle span {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 42px;
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.62);
+      border: 1px solid var(--border);
+      color: var(--text-soft);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.18s ease;
+      user-select: none;
+    }
+
+    .toggle input:checked + span {
+      background: var(--accent-soft);
+      border-color: rgba(106, 162, 138, 0.34);
+      color: var(--accent-deep);
+      box-shadow: inset 0 0 0 1px rgba(106, 162, 138, 0.08);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .field-group {
+      min-width: 0;
+    }
+
+    .input {
+      width: 100%;
+      height: 42px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.72);
+      color: var(--text);
+      padding: 0 13px;
+      font-size: 13px;
+      outline: none;
+      transition: 0.18s ease;
+    }
+
+    .input:focus {
+      border-color: rgba(106, 162, 138, 0.42);
+      box-shadow: 0 0 0 4px rgba(134, 184, 161, 0.12);
+    }
+
+    .range-wrap {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 78px;
+      gap: 10px;
+      align-items: center;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(134, 184, 161, 0.36), rgba(196, 216, 207, 0.68));
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 1px solid rgba(106, 162, 138, 0.3);
+      box-shadow: 0 4px 12px rgba(31, 45, 61, 0.1);
+      cursor: pointer;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 1px solid rgba(106, 162, 138, 0.3);
+      box-shadow: 0 4px 12px rgba(31, 45, 61, 0.1);
+      cursor: pointer;
+    }
+
+    .symbols-wrap {
+      display: grid;
+      grid-template-columns: 180px minmax(0, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .left-stack {
+      display: grid;
+      grid-template-rows: auto auto;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .symbol-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 42px);
+      gap: 8px;
+      align-content: start;
+      justify-content: start;
+      width: fit-content;
+      max-width: 100%;
+    }
+
+    .symbol-chip {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.72);
+      color: var(--text-soft);
+      font-family: var(--mono);
+      font-size: 17px;
+      cursor: pointer;
+      transition: 0.18s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+
+    .symbol-chip:hover {
+      background: rgba(255, 255, 255, 0.92);
+      transform: translateY(-1px);
+    }
+
+    .symbol-chip.active {
+      background: var(--accent-soft);
+      border-color: rgba(106, 162, 138, 0.34);
+      color: var(--accent-deep);
+      box-shadow: inset 0 0 0 1px rgba(106, 162, 138, 0.08);
+    }
+
+    .settings-bottom {
+      flex: 0 0 auto;
+      margin-top: 10px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(115, 138, 156, 0.11);
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .button {
+      height: 44px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.72);
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.18s ease;
+    }
+
+    .button:hover {
+      background: rgba(255, 255, 255, 0.94);
+      box-shadow: 0 8px 18px rgba(31, 45, 61, 0.05);
+    }
+
+    .button.primary {
+      background: rgba(134, 184, 161, 0.18);
+      border-color: rgba(106, 162, 138, 0.32);
+      color: #476d5e;
+    }
+
+    .button.primary:hover {
+      background: rgba(134, 184, 161, 0.26);
+    }
+
+    .status {
+      margin-top: 10px;
+      min-height: 18px;
+      font-size: 13px;
+      color: var(--text-soft);
+    }
+
+    .status.success {
+      color: #5d8a74;
+    }
+
+    .status.error {
+      color: #a06e6e;
+    }
+
+    .result-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex: 0 0 auto;
+    }
+
+    .result-top h2 {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 650;
+    }
+
+    .result-meta {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+      flex: 0 0 auto;
+    }
+
+    .meta-box {
+      padding: 10px 14px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.58);
+    }
+
+    .meta-box .k {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 12px;
+      color: var(--text-faint);
+    }
+
+    .meta-box .v {
+      display: block;
+      font-size: 14px;
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .result-box {
+      flex: 1 1 auto;
+      min-height: 0;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: var(--card-strong);
+      padding: 12px;
+      overflow: auto;
+    }
+
+    .password-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .password-item {
+      display: grid;
+      grid-template-columns: 52px 1fr 84px;
+      gap: 10px;
+      align-items: center;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(115, 138, 156, 0.14);
+      background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(248,251,252,0.86));
+    }
+
+    .password-index {
+      width: 52px;
+      height: 36px;
+      border-radius: 11px;
+      display: grid;
+      place-items: center;
+      font-size: 12px;
+      color: var(--text-soft);
+      background: rgba(134, 184, 161, 0.1);
+      border: 1px solid rgba(106, 162, 138, 0.18);
+    }
+
+    .password-text {
+      font-family: var(--mono);
+      font-size: 14px;
+      line-height: 1.6;
+      color: #22303a;
+      word-break: break-all;
+      letter-spacing: 0.02em;
+    }
+
+    .copy-one {
+      height: 36px;
+      border-radius: 11px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.85);
+      cursor: pointer;
+      color: var(--text-soft);
+      font-size: 12px;
+      font-weight: 600;
+      transition: 0.18s ease;
+    }
+
+    .copy-one:hover {
+      background: #ffffff;
+      color: var(--text);
+    }
+
+    .empty {
+      height: 100%;
+      min-height: 120px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      color: var(--text-faint);
+      padding: 16px;
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    @media (max-width: 1180px) {
+      body {
+        overflow: auto;
+      }
+
+      .app {
+        height: auto;
+        min-height: calc(100vh - 28px);
+      }
+
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      body {
+        padding: 14px;
+      }
+
+      .grid-2,
+      .result-meta,
+      .actions,
+      .symbols-wrap {
+        grid-template-columns: 1fr;
+      }
+
+      .symbol-grid {
+        grid-template-columns: repeat(5, 42px);
+      }
+    }
+
+    @media (max-width: 560px) {
+      .toggle-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .range-wrap {
+        grid-template-columns: 1fr;
+      }
+
+      .password-item {
+        grid-template-columns: 1fr;
+      }
+
+      .password-index {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <h1 class="title">密码生成器</h1>
+    </header>
+
+    <main class="layout">
+      <section class="card panel settings-panel">
+        <div class="settings-main">
+          <h2>生成设置</h2>
+
+          <div class="section">
+            <div class="label-row">
+              <div class="label">字符类型</div>
+              <div class="hint">默认启用数字与大小写字母</div>
+            </div>
+            <div class="toggle-grid">
+              <label class="toggle">
+                <input id="useNumbers" type="checkbox" checked />
+                <span>0-9 数字</span>
+              </label>
+              <label class="toggle">
+                <input id="useLowercase" type="checkbox" checked />
+                <span>a-z 小写</span>
+              </label>
+              <label class="toggle">
+                <input id="useUppercase" type="checkbox" checked />
+                <span>A-Z 大写</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="grid-2">
+              <div class="field-group">
+                <div class="label-row">
+                  <div class="label">生成数量</div>
+                  <div class="hint">1 - 10</div>
+                </div>
+                <div class="range-wrap">
+                  <input id="countRange" type="range" min="1" max="10" step="1" value="1" />
+                  <input id="countInput" class="input" type="number" min="1" max="10" step="1" value="1" />
+                </div>
+              </div>
+
+              <div class="field-group">
+                <div class="label-row">
+                  <div class="label">密码长度</div>
+                  <div class="hint">8 - 32</div>
+                </div>
+                <div class="range-wrap">
+                  <input id="lengthRange" type="range" min="8" max="32" step="1" value="20" />
+                  <input id="lengthInput" class="input" type="number" min="8" max="32" step="1" value="20" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="symbols-wrap">
+              <div class="left-stack">
+                <div>
+                  <div class="label-row">
+                    <div class="label">默认字符</div>
+                  </div>
+                  <input id="requiredChars" class="input" type="text" value="_" />
+                </div>
+
+                <div>
+                  <div class="label-row">
+                    <div class="label">排除字符</div>
+                  </div>
+                  <input id="excludeChars" class="input" type="text" value="oO0iIlLq9g" />
+                </div>
+              </div>
+
+              <div>
+                <div class="label-row">
+                  <div class="label">可选字符</div>
+                </div>
+                <div id="symbolGrid" class="symbol-grid"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-bottom">
+          <div class="actions">
+            <button id="generateBtn" class="button primary">生成密码</button>
+            <button id="clearBtn" class="button">清空结果</button>
+            <button id="copyAllBtn" class="button">复制结果</button>
+            <button id="downloadBtn" class="button">下载 TXT</button>
+          </div>
+          <div id="status" class="status"></div>
+        </div>
+      </section>
+
+      <section class="card panel result-panel">
+        <div class="result-top">
+          <h2>生成结果</h2>
+          <button id="regenBtn" class="button primary" type="button" style="width: 112px;">重新生成</button>
+        </div>
+
+        <div class="result-meta">
+          <div class="meta-box">
+            <span class="k">当前数量</span>
+            <span id="metaCount" class="v">1</span>
+          </div>
+          <div class="meta-box">
+            <span class="k">当前长度</span>
+            <span id="metaLength" class="v">20</span>
+          </div>
+          <div class="meta-box">
+            <span class="k">字符集大小</span>
+            <span id="metaCharset" class="v">0</span>
+          </div>
+        </div>
+
+        <div id="resultBox" class="result-box">
+          <div class="empty">结果会显示在这里。</div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const SYMBOLS = "!@#$%^&*()-+=.?";
+    const CHARS = {
+      numbers: "0123456789",
+      lowercase: "abcdefghijklmnopqrstuvwxyz",
+      uppercase: "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    };
+
+    const els = {
+      useNumbers: document.getElementById("useNumbers"),
+      useLowercase: document.getElementById("useLowercase"),
+      useUppercase: document.getElementById("useUppercase"),
+      countRange: document.getElementById("countRange"),
+      countInput: document.getElementById("countInput"),
+      lengthRange: document.getElementById("lengthRange"),
+      lengthInput: document.getElementById("lengthInput"),
+      requiredChars: document.getElementById("requiredChars"),
+      excludeChars: document.getElementById("excludeChars"),
+      symbolGrid: document.getElementById("symbolGrid"),
+      generateBtn: document.getElementById("generateBtn"),
+      regenBtn: document.getElementById("regenBtn"),
+      clearBtn: document.getElementById("clearBtn"),
+      copyAllBtn: document.getElementById("copyAllBtn"),
+      downloadBtn: document.getElementById("downloadBtn"),
+      resultBox: document.getElementById("resultBox"),
+      status: document.getElementById("status"),
+      metaCount: document.getElementById("metaCount"),
+      metaLength: document.getElementById("metaLength"),
+      metaCharset: document.getElementById("metaCharset")
+    };
+
+    let latestPasswords = [];
+    const selectedSymbols = new Set();
+
+    function escapeHtml(str) {
+      return str
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function setStatus(text = "", type = "") {
+      els.status.textContent = text;
+      els.status.className = "status" + (type ? " " + type : "");
+    }
+
+    function clamp(value, min, max, fallback) {
+      const num = Number(value);
+      if (!Number.isFinite(num)) return fallback;
+      return Math.min(max, Math.max(min, Math.floor(num)));
+    }
+
+    function uniqueChars(str) {
+      return [...new Set((str || "").split(""))].join("");
+    }
+
+    function getRandomInt(max) {
+      const arr = new Uint32Array(1);
+      crypto.getRandomValues(arr);
+      return arr[0] % max;
+    }
+
+    function shuffleArray(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = getRandomInt(i + 1);
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function syncPair(rangeEl, inputEl, min, max, fallback) {
+      const update = (value) => {
+        const safe = clamp(value, min, max, fallback);
+        rangeEl.value = safe;
+        inputEl.value = safe;
+        updateMeta();
+      };
+
+      rangeEl.addEventListener("input", () => update(rangeEl.value));
+      inputEl.addEventListener("input", () => update(inputEl.value));
+      inputEl.addEventListener("blur", () => update(inputEl.value));
+      update(inputEl.value);
+    }
+
+    function renderSymbolButtons() {
+      els.symbolGrid.innerHTML = "";
+
+      [...SYMBOLS].forEach((symbol) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "symbol-chip";
+        btn.textContent = symbol;
+        btn.dataset.symbol = symbol;
+
+        btn.addEventListener("click", () => {
+          if (selectedSymbols.has(symbol)) {
+            selectedSymbols.delete(symbol);
+            btn.classList.remove("active");
+          } else {
+            selectedSymbols.add(symbol);
+            btn.classList.add("active");
+          }
+          updateMeta();
+        });
+
+        els.symbolGrid.appendChild(btn);
+      });
+    }
+
+    function getRequiredIncludedChars() {
+      return uniqueChars((els.requiredChars.value || "") + [...selectedSymbols].join(""));
+    }
+
+    function buildCharset() {
+      let charset = "";
+
+      if (els.useNumbers.checked) charset += CHARS.numbers;
+      if (els.useLowercase.checked) charset += CHARS.lowercase;
+      if (els.useUppercase.checked) charset += CHARS.uppercase;
+
+      charset += getRequiredIncludedChars();
+      return uniqueChars(charset);
+    }
+
+    function getConfig() {
+      const count = clamp(els.countInput.value, 1, 10, 1);
+      const length = clamp(els.lengthInput.value, 8, 32, 20);
+      const requiredIncluded = getRequiredIncludedChars();
+      const excluded = new Set((els.excludeChars.value || "").split(""));
+      const fullCharset = buildCharset();
+      const usableCharset = fullCharset
+        .split("")
+        .filter((ch) => !excluded.has(ch))
+        .join("");
+
+      return {
+        count,
+        length,
+        requiredIncluded,
+        excluded,
+        usableCharset
+      };
+    }
+
+    function updateMeta() {
+      const { count, length, usableCharset } = getConfig();
+      els.metaCount.textContent = String(count);
+      els.metaLength.textContent = String(length);
+      els.metaCharset.textContent = String(usableCharset.length);
+    }
+
+    function generateOnePassword(length, requiredIncluded, usableCharset) {
+      const passwordChars = requiredIncluded.split("");
+
+      while (passwordChars.length < length) {
+        passwordChars.push(usableCharset[getRandomInt(usableCharset.length)]);
+      }
+
+      shuffleArray(passwordChars);
+      return passwordChars.join("");
+    }
+
+    function renderPasswords(passwords) {
+      if (!passwords.length) {
+        els.resultBox.innerHTML = '<div class="empty">结果会显示在这里。</div>';
+        return;
+      }
+
+      const html = passwords.map((pwd, index) => `
+        <div class="password-item">
+          <div class="password-index">#${index + 1}</div>
+          <div class="password-text">${escapeHtml(pwd)}</div>
+          <button class="copy-one" data-index="${index}">复制</button>
+        </div>
+      `).join("");
+
+      els.resultBox.innerHTML = `<div class="password-list">${html}</div>`;
+
+      els.resultBox.querySelectorAll(".copy-one").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const index = Number(btn.dataset.index);
+          const text = latestPasswords[index] || "";
+          if (!text) return;
+
+          try {
+            await navigator.clipboard.writeText(text);
+            setStatus("已复制单条密码。", "success");
+          } catch {
+            fallbackCopy(text);
+          }
+        });
+      });
+    }
+
+    function fallbackCopy(text) {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      textarea.style.pointerEvents = "none";
+      document.body.appendChild(textarea);
+      textarea.select();
+
+      try {
+        document.execCommand("copy");
+        setStatus("结果已复制到剪贴板。", "success");
+      } catch {
+        setStatus("复制失败，请手动复制。", "error");
+      }
+
+      document.body.removeChild(textarea);
+    }
+
+    async function copyAll() {
+      const text = latestPasswords.join("\n");
+      if (!text) {
+        setStatus("当前没有可复制的结果。", "error");
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(text);
+        setStatus("结果已复制到剪贴板。", "success");
+      } catch {
+        fallbackCopy(text);
+      }
+    }
+
+    function downloadTextFile(filename, content) {
+      const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function generatePasswords() {
+      const { count, length, requiredIncluded, excluded, usableCharset } = getConfig();
+
+      if (
+        !els.useNumbers.checked &&
+        !els.useLowercase.checked &&
+        !els.useUppercase.checked &&
+        !requiredIncluded
+      ) {
+        setStatus("请至少启用一种字符类型，或设置默认/可选字符。", "error");
+        latestPasswords = [];
+        renderPasswords(latestPasswords);
+        updateMeta();
+        return;
+      }
+
+      const conflict = requiredIncluded.split("").find((ch) => excluded.has(ch));
+      if (conflict) {
+        setStatus(`字符“${conflict}”已被排除，请调整设置。`, "error");
+        latestPasswords = [];
+        renderPasswords(latestPasswords);
+        updateMeta();
+        return;
+      }
+
+      if (!usableCharset.length) {
+        setStatus("字符集为空，请检查排除字符设置。", "error");
+        latestPasswords = [];
+        renderPasswords(latestPasswords);
+        updateMeta();
+        return;
+      }
+
+      if (requiredIncluded.length > length) {
+        setStatus("必含字符总数不能超过密码长度。", "error");
+        latestPasswords = [];
+        renderPasswords(latestPasswords);
+        updateMeta();
+        return;
+      }
+
+      const passwords = [];
+      for (let i = 0; i < count; i++) {
+        passwords.push(generateOnePassword(length, requiredIncluded, usableCharset));
+      }
+
+      latestPasswords = passwords;
+      renderPasswords(passwords);
+      updateMeta();
+      setStatus(`已生成 ${count} 个密码。`, "success");
+    }
+
+    function clearResults() {
+      latestPasswords = [];
+      renderPasswords(latestPasswords);
+      setStatus("结果已清空。");
+    }
+
+    function bindEvents() {
+      [
+        els.useNumbers,
+        els.useLowercase,
+        els.useUppercase,
+        els.requiredChars,
+        els.excludeChars
+      ].forEach((el) => {
+        el.addEventListener("input", updateMeta);
+        el.addEventListener("change", updateMeta);
+      });
+
+      els.generateBtn.addEventListener("click", generatePasswords);
+      els.regenBtn.addEventListener("click", generatePasswords);
+      els.clearBtn.addEventListener("click", clearResults);
+      els.copyAllBtn.addEventListener("click", copyAll);
+      els.downloadBtn.addEventListener("click", () => {
+        if (!latestPasswords.length) {
+          setStatus("当前没有可下载的结果。", "error");
+          return;
+        }
+        downloadTextFile("passwords.txt", latestPasswords.join("\n"));
+        setStatus("结果已下载。", "success");
+      });
+    }
+
+    renderSymbolButtons();
+    syncPair(els.countRange, els.countInput, 1, 10, 1);
+    syncPair(els.lengthRange, els.lengthInput, 8, 32, 20);
+    bindEvents();
+    updateMeta();
+  </script>
+</body>
+</html>
