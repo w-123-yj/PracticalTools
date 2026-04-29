@@ -1,0 +1,1136 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>个人信息填写测试页</title>
+  <style>
+    :root {
+      --ink: #1d1d1f;
+      --muted: #6e6e73;
+      --line: #d2d2d7;
+      --paper: #f5f5f7;
+      --panel: #ffffff;
+      --panel-strong: #f7f7fa;
+      --green: #1d7f5f;
+      --blue: #0066cc;
+      --red: #b42318;
+      --shadow: 0 18px 44px rgba(0, 0, 0, 0.06);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: "Microsoft YaHei", "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .shell {
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .rail {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 28px 22px;
+      border-right: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.84);
+      backdrop-filter: blur(20px);
+      overflow-y: auto;
+    }
+
+    .brand {
+      padding: 18px;
+      color: var(--ink);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      border-radius: 8px;
+    }
+
+    .brand small {
+      display: block;
+      margin-bottom: 12px;
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 25px;
+      line-height: 1.22;
+      letter-spacing: 0;
+    }
+
+    .rail nav {
+      display: grid;
+      gap: 8px;
+      margin-top: 24px;
+    }
+
+    .rail nav a {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      min-height: 40px;
+      padding: 8px 10px;
+      border: 1px solid transparent;
+      text-decoration: none;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .rail nav a:hover {
+      color: var(--ink);
+      border-color: var(--line);
+      background: #fff;
+      border-radius: 8px;
+    }
+
+    .meter {
+      margin-top: 24px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 8px;
+    }
+
+    .meter label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    progress {
+      width: 100%;
+      height: 12px;
+      accent-color: var(--green);
+    }
+
+    main {
+      padding: 34px clamp(18px, 4vw, 64px) 72px;
+    }
+
+    .topline {
+      max-width: 900px;
+      margin-bottom: 24px;
+      padding: 10px 0 12px;
+    }
+
+    .topline h2 {
+      margin: 0 0 8px;
+      font-size: clamp(30px, 4vw, 48px);
+      line-height: 1.08;
+      letter-spacing: 0;
+      font-family: "Microsoft YaHei", "Segoe UI", sans-serif;
+      font-weight: 650;
+    }
+
+    .topline p {
+      margin: 0;
+      max-width: 740px;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    form {
+      display: grid;
+      gap: 20px;
+    }
+
+    section {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    section > header {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line);
+      background: var(--panel-strong);
+    }
+
+    section h3 {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+
+    section header code {
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 16px;
+      padding: 18px;
+    }
+
+    .field {
+      grid-column: span 4;
+      min-width: 0;
+    }
+
+    .field.wide {
+      grid-column: span 8;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    .field.third {
+      grid-column: span 3;
+    }
+
+    .field.half {
+      grid-column: span 6;
+    }
+
+    label,
+    .label {
+      display: block;
+      margin: 0 0 6px;
+      color: #3a4654;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .hint {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    input,
+    select,
+    textarea,
+    button,
+    .editable {
+      width: 100%;
+      min-height: 42px;
+      border: 1px solid #bfc7d4;
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      font: inherit;
+    }
+
+    input,
+    select,
+    textarea,
+    .editable {
+      padding: 9px 10px;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus,
+    .editable:focus {
+      outline: 3px solid rgba(0, 102, 204, 0.18);
+      border-color: var(--blue);
+    }
+
+    input[type="color"] {
+      padding: 3px;
+      min-height: 44px;
+    }
+
+    input[type="range"] {
+      padding: 0;
+      accent-color: var(--green);
+    }
+
+    textarea {
+      min-height: 106px;
+      resize: vertical;
+    }
+
+    select[multiple] {
+      min-height: 126px;
+    }
+
+    .choice-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+    }
+
+    .choice,
+    .toggle {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 42px;
+      padding: 9px 10px;
+      border: 1px solid #bfc7d4;
+      border-radius: 8px;
+      background: #fff;
+      font-size: 14px;
+    }
+
+    .choice input,
+    .toggle input {
+      width: auto;
+      min-height: auto;
+      margin: 0;
+      accent-color: var(--green);
+    }
+
+    .segment {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 8px;
+      padding: 6px;
+      border: 1px solid #bfc7d4;
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .segment label {
+      position: relative;
+      margin: 0;
+      min-height: 42px;
+      color: var(--ink);
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .segment input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .segment span {
+      display: grid;
+      place-items: center;
+      height: 100%;
+      border: 1px solid transparent;
+    }
+
+    .segment input:checked + span {
+      color: #fff;
+      background: var(--blue);
+      border-color: #123c60;
+    }
+
+    .matrix {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+    }
+
+    .matrix th,
+    .matrix td {
+      padding: 10px;
+      border: 1px solid var(--line);
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    .matrix th {
+      background: var(--panel-strong);
+      font-size: 13px;
+    }
+
+    .matrix input,
+    .matrix select {
+      min-height: 36px;
+    }
+
+    .table-tools {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .table-tools .label {
+      margin: 0;
+    }
+
+    .row-action {
+      min-width: 72px;
+      padding: 7px 10px;
+      border-color: var(--line);
+      background: #fff;
+      color: var(--red);
+    }
+
+    .actions {
+      position: sticky;
+      bottom: 0;
+      z-index: 5;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto auto;
+      gap: 12px;
+      align-items: center;
+      padding: 14px 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 -12px 28px rgba(0, 0, 0, 0.08);
+    }
+
+    .actions .status {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    button {
+      width: auto;
+      min-width: 120px;
+      padding: 9px 14px;
+      border-color: var(--blue);
+      background: var(--blue);
+      color: #fff;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    button.secondary {
+      border-color: #9ca8b6;
+      background: #fff;
+      color: var(--ink);
+    }
+
+    button.warn {
+      border-color: #7a2d25;
+      background: var(--red);
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 16px rgba(45, 38, 28, 0.12);
+    }
+
+    output,
+    pre {
+      display: block;
+      margin: 0;
+      padding: 14px;
+      border: 1px solid var(--line);
+      background: #121820;
+      color: #dbeafe;
+      white-space: pre-wrap;
+      overflow-x: auto;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 12px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 980px) {
+      .shell {
+        grid-template-columns: 1fr;
+      }
+
+      .rail {
+        position: static;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .rail nav {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      }
+
+      .topline {
+        grid-template-columns: 1fr;
+      }
+
+      .field,
+      .field.third,
+      .field.half,
+      .field.wide {
+        grid-column: 1 / -1;
+      }
+
+      .actions {
+        grid-template-columns: 1fr;
+      }
+
+      button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="rail">
+      <div class="brand">
+        <small>Form Filling Test Desk</small>
+        <h1>个人信息采集表</h1>
+      </div>
+      <nav aria-label="页面分区">
+        <a href="#identity">身份信息 <span>01</span></a>
+        <a href="#contact">联系方式 <span>02</span></a>
+        <a href="#address">地址证件 <span>03</span></a>
+        <a href="#education">教育工作 <span>04</span></a>
+        <a href="#health">健康出行 <span>05</span></a>
+        <a href="#preference">偏好与账号 <span>06</span></a>
+        <a href="#relations">联系人与家庭 <span>07</span></a>
+        <a href="#review">页面内回显 <span>08</span></a>
+      </nav>
+      <div class="meter">
+        <label for="formProgress"><span>已填写控件</span><b id="progressText">0%</b></label>
+        <progress id="formProgress" value="0" max="100"></progress>
+      </div>
+    </aside>
+
+    <main>
+      <div class="topline">
+        <div>
+          <h2>个人信息表</h2>
+          <p>用于测试自动填表识别；提交后只在本页生成摘要。</p>
+        </div>
+      </div>
+
+      <form id="profileForm" autocomplete="on">
+        <section id="identity">
+          <header>
+            <h3>01 身份信息</h3>
+            <code>text / radio / date / select</code>
+          </header>
+          <div class="grid">
+            <div class="field">
+              <label for="fullName">中文姓名 *</label>
+              <input id="fullName" name="full_name" autocomplete="name" required placeholder="请输入中文姓名">
+            </div>
+            <div class="field">
+              <label for="familyName">姓氏</label>
+              <input id="familyName" name="family_name" autocomplete="family-name" placeholder="请输入姓氏拼音">
+            </div>
+            <div class="field">
+              <label for="givenName">名字</label>
+              <input id="givenName" name="given_name" autocomplete="given-name" placeholder="请输入名字拼音">
+            </div>
+            <div class="field">
+              <label for="englishName">英文名 / 拼音</label>
+              <input id="englishName" name="english_name" autocomplete="additional-name" placeholder="请输入英文名或拼音">
+            </div>
+            <div class="field">
+              <label for="nickname">常用称呼</label>
+              <input id="nickname" name="nickname" autocomplete="nickname" placeholder="请输入常用称呼">
+            </div>
+            <div class="field">
+              <label for="gender">性别</label>
+              <select id="gender" name="gender" autocomplete="sex">
+                <option value="">请选择</option>
+                <option>女</option>
+                <option>男</option>
+                <option>非二元</option>
+                <option>不便透露</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="birthDate">出生日期</label>
+              <input id="birthDate" name="birth_date" type="date" autocomplete="bday">
+            </div>
+            <div class="field">
+              <label for="birthMonth">出生月份</label>
+              <input id="birthMonth" name="birth_month" type="month">
+            </div>
+            <div class="field">
+              <label for="age">年龄（只能填数字）</label>
+              <input id="age" name="age" type="number" min="0" max="130" step="1" inputmode="numeric" placeholder="26">
+            </div>
+            <div class="field">
+              <label for="height">身高 cm（小数可填）</label>
+              <input id="height" name="height_cm" type="number" min="40" max="260" step="0.1" inputmode="decimal" placeholder="168.5">
+            </div>
+            <fieldset class="field wide">
+              <legend class="label">婚姻状态</legend>
+              <div class="segment">
+                <label><input type="radio" name="marital_status" value="single"><span>未婚</span></label>
+                <label><input type="radio" name="marital_status" value="married"><span>已婚</span></label>
+                <label><input type="radio" name="marital_status" value="divorced"><span>离异</span></label>
+                <label><input type="radio" name="marital_status" value="private"><span>保密</span></label>
+              </div>
+            </fieldset>
+            <div class="field full">
+              <label for="bio">个人简介</label>
+              <textarea id="bio" name="bio" maxlength="500" placeholder="请填写研究方向、工作经历、兴趣等"></textarea>
+              <div class="hint"><span id="bioCount">0</span>/500 字</div>
+            </div>
+          </div>
+        </section>
+
+        <section id="contact">
+          <header>
+            <h3>02 联系方式</h3>
+            <code>email / tel / url / datalist</code>
+          </header>
+          <div class="grid">
+            <div class="field">
+              <label for="email">电子邮箱 *</label>
+              <input id="email" name="email" type="email" autocomplete="email" required placeholder="name@example.com">
+            </div>
+            <div class="field">
+              <label for="phone">手机号码</label>
+              <input id="phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="请输入手机号">
+            </div>
+            <div class="field">
+              <label for="wechat">微信号</label>
+              <input id="wechat" name="wechat_id" autocomplete="impp" placeholder="wechat-id">
+            </div>
+            <div class="field">
+              <label for="homepage">个人主页</label>
+              <input id="homepage" name="homepage" type="url" autocomplete="url" placeholder="https://example.com">
+            </div>
+            <div class="field">
+              <label for="preferredContact">首选联系渠道</label>
+              <input id="preferredContact" name="preferred_contact" list="contactMethods" placeholder="输入或选择">
+              <datalist id="contactMethods">
+                <option value="手机">
+                <option value="电子邮箱">
+                <option value="微信">
+                <option value="钉钉">
+                <option value="飞书">
+              </datalist>
+            </div>
+            <div class="field">
+              <label for="bestTime">适合联系时间</label>
+              <input id="bestTime" name="best_contact_time" type="time">
+            </div>
+            <fieldset class="field full">
+              <legend class="label">可接收通知类型（多选）</legend>
+              <div class="choice-grid">
+                <label class="choice"><input type="checkbox" name="notice_types" value="sms">短信</label>
+                <label class="choice"><input type="checkbox" name="notice_types" value="email">邮件</label>
+                <label class="choice"><input type="checkbox" name="notice_types" value="wechat">微信</label>
+                <label class="choice"><input type="checkbox" name="notice_types" value="phone">电话</label>
+                <label class="choice"><input type="checkbox" name="notice_types" value="paper">纸质信件</label>
+              </div>
+            </fieldset>
+          </div>
+        </section>
+
+        <section id="address">
+          <header>
+            <h3>03 地址证件</h3>
+            <code>autocomplete / pattern / file</code>
+          </header>
+          <div class="grid">
+            <div class="field">
+              <label for="country">国家 / 地区</label>
+              <select id="country" name="country" autocomplete="country-name">
+                <option value="">请选择</option>
+                <option>中国</option>
+                <option>美国</option>
+                <option>英国</option>
+                <option>德国</option>
+                <option>法国</option>
+                <option>日本</option>
+                <option>新加坡</option>
+                <option>其他</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="province">省 / 州</label>
+              <input id="province" name="province" autocomplete="address-level1" placeholder="请输入省或州">
+            </div>
+            <div class="field">
+              <label for="city">城市</label>
+              <input id="city" name="city" autocomplete="address-level2" placeholder="请输入城市">
+            </div>
+            <div class="field">
+              <label for="district">区县</label>
+              <input id="district" name="district" autocomplete="address-level3" placeholder="请输入区县">
+            </div>
+            <div class="field wide">
+              <label for="street">详细地址</label>
+              <input id="street" name="street_address" autocomplete="street-address" placeholder="街道、门牌号、楼栋、房间">
+            </div>
+            <div class="field">
+              <label for="postcode">邮政编码</label>
+              <input id="postcode" name="postal_code" autocomplete="postal-code" pattern="[0-9]{6}" inputmode="numeric" placeholder="请输入 6 位邮编">
+              <div class="hint">示例规则：6 位数字</div>
+            </div>
+            <div class="field">
+              <label for="idType">证件类型</label>
+              <select id="idType" name="id_type">
+                <option value="">请选择</option>
+                <option value="national_id">居民身份证</option>
+                <option value="passport">护照</option>
+                <option value="hk_macao">港澳通行证</option>
+                <option value="taiwan">台湾通行证</option>
+                <option value="other">其他证件</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="idNumber">证件号码</label>
+              <input id="idNumber" name="id_number" autocomplete="off" placeholder="证件号码">
+            </div>
+            <div class="field">
+              <label for="idExpire">证件有效期至</label>
+              <input id="idExpire" name="id_expire_date" type="date">
+            </div>
+            <div class="field">
+              <label for="idPhoto">上传证件照</label>
+              <input id="idPhoto" name="id_photo" type="file" accept="image/*,.pdf">
+            </div>
+          </div>
+        </section>
+
+        <section id="education">
+          <header>
+            <h3>04 教育工作</h3>
+            <code>select / table / month / numeric</code>
+          </header>
+          <div class="grid">
+            <div class="field">
+              <label for="degree">最高学历</label>
+              <select id="degree" name="highest_degree">
+                <option value="">请选择</option>
+                <option>高中及以下</option>
+                <option>专科</option>
+                <option>本科</option>
+                <option>硕士研究生</option>
+                <option>博士研究生</option>
+                <option>博士后</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="school">学校 / 单位</label>
+              <input id="school" name="school" autocomplete="organization" placeholder="请输入学校或单位">
+            </div>
+            <div class="field">
+              <label for="major">专业 / 部门</label>
+              <input id="major" name="major_or_department" placeholder="请输入专业或部门">
+            </div>
+            <div class="field">
+              <label for="studentId">学号 / 工号</label>
+              <input id="studentId" name="student_or_employee_id" placeholder="请输入学号或工号">
+            </div>
+            <div class="field">
+              <label for="startMonth">入学 / 入职年月</label>
+              <input id="startMonth" name="start_month" type="month">
+            </div>
+            <div class="field">
+              <label for="gpa">GPA / 绩点</label>
+              <input id="gpa" name="gpa" type="number" min="0" max="5" step="0.01" inputmode="decimal" placeholder="3.80">
+            </div>
+            <div class="field full">
+              <label for="skills">技能标签（多选下拉）</label>
+              <select id="skills" name="skills" multiple>
+                <option>Word</option>
+                <option>Excel</option>
+                <option>PPT</option>
+                <option>Python</option>
+                <option>英语</option>
+                <option>写作</option>
+                <option>数据分析</option>
+                <option>沟通协调</option>
+              </select>
+            </div>
+            <div class="field full">
+              <div class="table-tools">
+                <span class="label">经历表格</span>
+                <button class="secondary" type="button" id="addExperience">添加一行</button>
+              </div>
+              <table class="matrix">
+                <thead>
+                  <tr>
+                    <th>类型</th>
+                    <th>名称</th>
+                    <th>开始</th>
+                    <th>结束</th>
+                    <th>是否当前</th>
+                    <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody id="experienceBody">
+                  <tr data-row="1">
+                    <td>
+                      <select name="experience_1_type" aria-label="经历 1 类型">
+                        <option value="">请选择</option>
+                        <option>教育</option>
+                        <option>实习</option>
+                        <option>工作</option>
+                        <option>项目</option>
+                      </select>
+                    </td>
+                    <td><input name="experience_1_name" aria-label="经历 1 名称"></td>
+                    <td><input name="experience_1_start" aria-label="经历 1 开始" type="month"></td>
+                    <td><input name="experience_1_end" aria-label="经历 1 结束" type="month"></td>
+                    <td><input name="experience_1_current" aria-label="经历 1 是否当前" type="checkbox"></td>
+                    <td><button class="row-action" type="button" data-remove-row>删除</button></td>
+                  </tr>
+                  <tr data-row="2">
+                    <td>
+                      <select name="experience_2_type" aria-label="经历 2 类型">
+                        <option value="">请选择</option>
+                        <option>教育</option>
+                        <option>实习</option>
+                        <option>工作</option>
+                        <option>项目</option>
+                      </select>
+                    </td>
+                    <td><input name="experience_2_name" aria-label="经历 2 名称"></td>
+                    <td><input name="experience_2_start" aria-label="经历 2 开始" type="month"></td>
+                    <td><input name="experience_2_end" aria-label="经历 2 结束" type="month"></td>
+                    <td><input name="experience_2_current" aria-label="经历 2 是否当前" type="checkbox"></td>
+                    <td><button class="row-action" type="button" data-remove-row>删除</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section id="health">
+          <header>
+            <h3>05 健康出行</h3>
+            <code>checkbox / datetime / range</code>
+          </header>
+          <div class="grid">
+            <fieldset class="field wide">
+              <legend class="label">饮食限制（多选）</legend>
+              <div class="choice-grid">
+                <label class="choice"><input type="checkbox" name="diet" value="none">无</label>
+                <label class="choice"><input type="checkbox" name="diet" value="vegetarian">素食</label>
+                <label class="choice"><input type="checkbox" name="diet" value="halal">清真</label>
+                <label class="choice"><input type="checkbox" name="diet" value="no_seafood">不吃海鲜</label>
+                <label class="choice"><input type="checkbox" name="diet" value="low_sugar">低糖</label>
+              </div>
+            </fieldset>
+            <div class="field">
+              <label for="bloodType">血型</label>
+              <select id="bloodType" name="blood_type">
+                <option value="">请选择</option>
+                <option>A</option>
+                <option>B</option>
+                <option>AB</option>
+                <option>O</option>
+                <option>未知</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="arrival">预计到达时间</label>
+              <input id="arrival" name="arrival_time" type="datetime-local">
+            </div>
+            <div class="field">
+              <label for="travelMode">出行方式</label>
+              <select id="travelMode" name="travel_mode">
+                <option value="">请选择</option>
+                <option>飞机</option>
+                <option>高铁</option>
+                <option>火车</option>
+                <option>自驾</option>
+                <option>公交/地铁</option>
+                <option>步行</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="luggage">行李件数</label>
+              <input id="luggage" name="luggage_count" type="number" min="0" max="20" step="1" inputmode="numeric">
+            </div>
+            <div class="field wide">
+              <label for="comfort">住宿舒适度偏好：<span id="comfortValue">5</span></label>
+              <input id="comfort" name="comfort_level" type="range" min="1" max="10" value="5">
+            </div>
+            <div class="field full">
+              <label for="allergies">过敏史 / 特殊说明</label>
+              <textarea id="allergies" name="allergies" placeholder="如无可留空"></textarea>
+            </div>
+          </div>
+        </section>
+
+        <section id="preference">
+          <header>
+            <h3>06 偏好与账号</h3>
+            <code>color / password / hidden conditional</code>
+          </header>
+          <div class="grid">
+            <div class="field">
+              <label for="themeColor">偏好颜色</label>
+              <input id="themeColor" name="theme_color" type="color" value="#176b55">
+            </div>
+            <div class="field">
+              <label for="language">首选语言</label>
+              <select id="language" name="language">
+                <option value="">请选择</option>
+                <option>中文</option>
+                <option>英语</option>
+                <option>日语</option>
+                <option>德语</option>
+                <option>法语</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="timezone">时区</label>
+              <select id="timezone" name="timezone">
+                <option value="">请选择</option>
+                <option value="Asia/Shanghai">Asia/Shanghai</option>
+                <option value="Asia/Tokyo">Asia/Tokyo</option>
+                <option value="Europe/London">Europe/London</option>
+                <option value="America/New_York">America/New_York</option>
+                <option value="UTC">UTC</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="testPassword">测试密码字段</label>
+              <input id="testPassword" name="test_password" type="password" autocomplete="new-password" placeholder="仅用于控件测试">
+            </div>
+            <fieldset class="field wide">
+              <legend class="label">账号开通需求</legend>
+              <label class="toggle"><input id="needAccount" name="need_account" type="checkbox" value="yes">需要开通系统账号</label>
+            </fieldset>
+            <div class="field hidden" id="accountNameBox">
+              <label for="accountName">期望用户名</label>
+              <input id="accountName" name="desired_username" autocomplete="username" placeholder="username">
+            </div>
+            <div class="field full">
+              <label for="richNote">内容可编辑备注</label>
+              <div id="richNote" class="editable" contenteditable="true" role="textbox" aria-multiline="true" data-name="rich_note">可直接点击这里输入多行备注。</div>
+              <input id="richNoteHidden" name="rich_note" type="hidden">
+            </div>
+          </div>
+        </section>
+
+        <section id="relations">
+          <header>
+            <h3>07 联系人与家庭</h3>
+            <code>repeated labels / scoped fields</code>
+          </header>
+          <div class="grid">
+            <fieldset class="field half">
+              <legend class="label">紧急联系人 A</legend>
+              <label for="emergencyAName">姓名</label>
+              <input id="emergencyAName" name="emergency_a_name" autocomplete="off">
+              <label for="emergencyARelation">关系</label>
+              <select id="emergencyARelation" name="emergency_a_relation">
+                <option value="">请选择</option>
+                <option>父母</option>
+                <option>配偶</option>
+                <option>同学</option>
+                <option>同事</option>
+                <option>朋友</option>
+              </select>
+              <label for="emergencyAPhone">电话</label>
+              <input id="emergencyAPhone" name="emergency_a_phone" type="tel" inputmode="tel">
+            </fieldset>
+            <fieldset class="field half">
+              <legend class="label">紧急联系人 B</legend>
+              <label for="emergencyBName">姓名</label>
+              <input id="emergencyBName" name="emergency_b_name" autocomplete="off">
+              <label for="emergencyBRelation">关系</label>
+              <select id="emergencyBRelation" name="emergency_b_relation">
+                <option value="">请选择</option>
+                <option>父母</option>
+                <option>配偶</option>
+                <option>同学</option>
+                <option>同事</option>
+                <option>朋友</option>
+              </select>
+              <label for="emergencyBPhone">电话</label>
+              <input id="emergencyBPhone" name="emergency_b_phone" type="tel" inputmode="tel">
+            </fieldset>
+            <div class="field">
+              <label for="familySize">家庭成员人数</label>
+              <input id="familySize" name="family_size" type="number" min="1" max="20" step="1" inputmode="numeric">
+            </div>
+            <div class="field wide">
+              <label for="invoiceTitle">发票抬头</label>
+              <input id="invoiceTitle" name="invoice_title" placeholder="个人或单位名称">
+            </div>
+            <div class="field">
+              <label for="taxNumber">税号</label>
+              <input id="taxNumber" name="tax_number" pattern="[A-Z0-9]{10,20}" placeholder="大写字母和数字">
+            </div>
+          </div>
+        </section>
+
+        <section id="review">
+          <header>
+            <h3>08 页面内回显</h3>
+            <code>submit prevented / JSON output</code>
+          </header>
+          <div class="grid">
+            <div class="field full">
+              <output id="formMessage">尚未生成摘要。</output>
+            </div>
+            <div class="field full">
+              <pre id="jsonOutput" aria-live="polite">{}</pre>
+            </div>
+          </div>
+        </section>
+
+        <div class="actions">
+          <div class="status" id="actionStatus">本页不会把表单提交到服务器。</div>
+          <button class="secondary" type="reset">清空</button>
+          <button type="submit">生成摘要</button>
+        </div>
+      </form>
+    </main>
+  </div>
+
+  <script>
+    const form = document.querySelector("#profileForm");
+    const progress = document.querySelector("#formProgress");
+    const progressText = document.querySelector("#progressText");
+    const jsonOutput = document.querySelector("#jsonOutput");
+    const formMessage = document.querySelector("#formMessage");
+    const comfort = document.querySelector("#comfort");
+    const comfortValue = document.querySelector("#comfortValue");
+    const bio = document.querySelector("#bio");
+    const bioCount = document.querySelector("#bioCount");
+    const needAccount = document.querySelector("#needAccount");
+    const accountNameBox = document.querySelector("#accountNameBox");
+    const richNote = document.querySelector("#richNote");
+    const richNoteHidden = document.querySelector("#richNoteHidden");
+    const experienceBody = document.querySelector("#experienceBody");
+    const addExperience = document.querySelector("#addExperience");
+    let experienceRowCount = 2;
+
+    function fields() {
+      return Array.from(form.querySelectorAll("input, select, textarea"));
+    }
+
+    function hasValue(control) {
+      if (control.type === "hidden") return false;
+      if (control.type === "checkbox" || control.type === "radio") return control.checked;
+      if (control.tagName === "SELECT" && control.multiple) {
+        return Array.from(control.selectedOptions).length > 0;
+      }
+      if (control.type === "file") return control.files.length > 0;
+      return String(control.value || "").trim().length > 0;
+    }
+
+    function updateProgress() {
+      richNoteHidden.value = richNote.innerText.trim();
+      const controls = fields().filter((item) => item.type !== "hidden" && item.type !== "button" && item.type !== "submit" && item.type !== "reset");
+      const filled = controls.filter(hasValue).length;
+      const percent = controls.length ? Math.round((filled / controls.length) * 100) : 0;
+      progress.value = percent;
+      progressText.textContent = `${percent}%`;
+      comfortValue.textContent = comfort.value;
+      bioCount.textContent = bio.value.length;
+      accountNameBox.classList.toggle("hidden", !needAccount.checked);
+    }
+
+    function experienceRowTemplate(index) {
+      return `
+        <tr data-row="${index}">
+          <td>
+            <select name="experience_${index}_type" aria-label="经历 ${index} 类型">
+              <option value="">请选择</option>
+              <option>教育</option>
+              <option>实习</option>
+              <option>工作</option>
+              <option>项目</option>
+            </select>
+          </td>
+          <td><input name="experience_${index}_name" aria-label="经历 ${index} 名称"></td>
+          <td><input name="experience_${index}_start" aria-label="经历 ${index} 开始" type="month"></td>
+          <td><input name="experience_${index}_end" aria-label="经历 ${index} 结束" type="month"></td>
+          <td><input name="experience_${index}_current" aria-label="经历 ${index} 是否当前" type="checkbox"></td>
+          <td><button class="row-action" type="button" data-remove-row>删除</button></td>
+        </tr>
+      `;
+    }
+
+    function addExperienceRow() {
+      experienceRowCount += 1;
+      experienceBody.insertAdjacentHTML("beforeend", experienceRowTemplate(experienceRowCount));
+      updateProgress();
+    }
+
+    function removeExperienceRow(button) {
+      const rows = experienceBody.querySelectorAll("tr");
+      if (rows.length <= 1) return;
+      button.closest("tr").remove();
+      updateProgress();
+    }
+
+    function collectData() {
+      richNoteHidden.value = richNote.innerText.trim();
+      const data = {};
+      for (const control of fields()) {
+        if (!control.name || control.type === "button" || control.type === "submit" || control.type === "reset") continue;
+        if (control.type === "radio") {
+          if (control.checked) data[control.name] = control.value;
+        } else if (control.type === "checkbox") {
+          if (!Array.isArray(data[control.name])) data[control.name] = [];
+          if (control.checked) data[control.name].push(control.value || true);
+        } else if (control.type === "file") {
+          data[control.name] = Array.from(control.files).map((file) => file.name);
+        } else if (control.tagName === "SELECT" && control.multiple) {
+          data[control.name] = Array.from(control.selectedOptions).map((option) => option.value || option.text);
+        } else {
+          data[control.name] = control.value;
+        }
+      }
+      return data;
+    }
+
+    form.addEventListener("input", updateProgress);
+    form.addEventListener("change", updateProgress);
+    richNote.addEventListener("input", updateProgress);
+    addExperience.addEventListener("click", addExperienceRow);
+    experienceBody.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-remove-row]");
+      if (button) removeExperienceRow(button);
+    });
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      updateProgress();
+      const data = collectData();
+      jsonOutput.textContent = JSON.stringify(data, null, 2);
+      formMessage.textContent = `已在本页生成 ${Object.keys(data).length} 个字段的摘要，未发送网络请求。`;
+      document.querySelector("#actionStatus").textContent = "摘要已生成，可以检查插件填写结果。";
+    });
+
+    form.addEventListener("reset", () => {
+      setTimeout(() => {
+        richNote.textContent = "可直接点击这里输入多行备注。";
+        jsonOutput.textContent = "{}";
+        formMessage.textContent = "尚未生成摘要。";
+        document.querySelector("#actionStatus").textContent = "本页不会把表单提交到服务器。";
+        updateProgress();
+      }, 0);
+    });
+
+    updateProgress();
+  </script>
+</body>
+</html>
